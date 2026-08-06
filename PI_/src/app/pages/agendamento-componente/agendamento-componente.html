@@ -2,14 +2,14 @@
   <div class="container booking">
     <app-header-component
       titulo="Agendar tattoo"
-      descricao="Escolha o tipo de projeto, o tatuador, a data e o horário."
+      descricao="Escolha o tipo de projeto, os detalhes, o tatuador, a data e o horário."
       etiqueta="Agendamento"
     />
     <ol class="steps" aria-label="Etapas do agendamento">
       @for (nome of etapas; track nome; let i = $index) {
         <li [class.is-current]="i === etapa()" [class.is-complete]="i < etapa()">
-          <span>{{ i < etapa() ? '✓' : i + 1 }}</span
-          ><small>{{ nome }}</small>
+          <span>{{ i < etapa() ? '✓' : i + 1 }}</span>
+          <small>{{ nome }}</small>
         </li>
       }
     </ol>
@@ -22,39 +22,114 @@
             <button
               type="button"
               [class.is-selected]="opcao() === 'portfolio'"
-              (click)="opcao.set('portfolio')"
+              [attr.aria-pressed]="opcao() === 'portfolio'"
+              (click)="selecionarOpcao('portfolio')"
             >
-              <span></span><strong>Escolher uma tattoo do portfólio</strong
-              ><small>Use um trabalho do catálogo como inspiração.</small>
+              <span aria-hidden="true"></span>
+              <strong>Escolher uma tattoo do portfólio</strong>
+              <small>Use um trabalho do catálogo como inspiração.</small>
             </button>
             <button
               type="button"
               [class.is-selected]="opcao() === 'referencia'"
-              (click)="opcao.set('referencia')"
+              [attr.aria-pressed]="opcao() === 'referencia'"
+              (click)="selecionarOpcao('referencia')"
             >
-              <span></span><strong>Tenho uma ideia ou referência</strong
-              ><small>Descreva seu projeto e envie referências posteriormente.</small>
+              <span aria-hidden="true"></span>
+              <strong>Tenho uma ideia ou referência</strong>
+              <small>Descreva seu projeto e, se quiser, escolha uma imagem.</small>
             </button>
           </div>
         }
         @case (1) {
+          @if (opcao() === 'portfolio') {
+            <h2>Escolha um trabalho do portfólio</h2>
+            <div class="portfolio-options">
+              @for (trabalho of trabalhosPortfolio; track trabalho.id) {
+                <button
+                  class="portfolio-card"
+                  type="button"
+                  [class.is-selected]="portfolioSelecionado()?.id === trabalho.id"
+                  [attr.aria-pressed]="portfolioSelecionado()?.id === trabalho.id"
+                  (click)="selecionarTrabalhoPortfolio(trabalho)"
+                >
+                  @if (trabalho.imagemUrl) {
+                    <img
+                      [src]="trabalho.imagemUrl"
+                      [alt]="'Imagem do trabalho ' + trabalho.titulo"
+                      loading="lazy"
+                    />
+                  }
+                  <span class="portfolio-card__content">
+                    <strong>{{ trabalho.titulo }}</strong>
+                    <small>Artista: {{ trabalho.artista }}</small>
+                    <small>Estilo: {{ trabalho.estilo }}</small>
+                    <small>{{ trabalho.descricao }}</small>
+                  </span>
+                </button>
+              }
+            </div>
+          } @else {
+            <h2>Conte mais sobre o seu projeto</h2>
+            <div class="reference-form">
+              <label for="descricao-referencia">
+                Descrição do projeto <span aria-hidden="true">*</span>
+                <textarea
+                  id="descricao-referencia"
+                  rows="6"
+                  [value]="descricaoReferencia()"
+                  aria-required="true"
+                  (input)="atualizarDescricaoReferencia($event)"
+                ></textarea>
+              </label>
+              <p class="field-help">Explique a ideia, o local do corpo, o tamanho ou outros detalhes importantes.</p>
+
+              <label for="arquivo-referencia">Imagem de referência (opcional)</label>
+              <input
+                id="arquivo-referencia"
+                type="file"
+                accept="image/png,image/jpeg,image/webp"
+                [attr.aria-describedby]="erroDetalhesProjeto() ? 'erro-detalhes-projeto' : null"
+                (change)="atualizarArquivoReferencia($event)"
+              />
+              <small class="field-help">PNG, JPG ou JPEG, WEBP, até 5 MB.</small>
+
+              @if (nomeArquivoReferencia()) {
+                <p class="selected-file">Arquivo selecionado: {{ nomeArquivoReferencia() }}</p>
+              }
+              @if (previewReferenciaUrl()) {
+                <img
+                  class="reference-preview"
+                  [src]="previewReferenciaUrl()"
+                  alt="Prévia local da imagem de referência"
+                />
+              }
+              @if (erroDetalhesProjeto()) {
+                <p id="erro-detalhes-projeto" role="alert">{{ erroDetalhesProjeto() }}</p>
+              }
+            </div>
+          }
+        }
+        @case (2) {
           <h2>Escolha o tatuador</h2>
           <div class="artist-options">
             @for (artista of artistas; track artista.id) {
               <button
                 type="button"
                 [class.is-selected]="artistaId() === artista.id"
+                [attr.aria-pressed]="artistaId() === artista.id"
                 (click)="artistaId.set(artista.id)"
               >
-                <img [src]="artista.fotoUrl" [alt]="artista.nome" /><span
-                  ><strong>{{ artista.nome }}</strong
-                  ><small>{{ artista.especialidade }}</small></span
-                ><b>★ {{ artista.avaliacao }}</b>
+                <img [src]="artista.fotoUrl" [alt]="artista.nome" /><span>
+                  <strong>{{ artista.nome }}</strong>
+                  <small>{{ artista.especialidade }}</small>
+                </span>
+                <b>★ {{ artista.avaliacao }}</b>
               </button>
             }
           </div>
         }
-        @case (2) {
+        @case (3) {
           <h2>Data e horário</h2>
           <div class="date-time-grid">
             <label
@@ -71,6 +146,7 @@
                   <button
                     type="button"
                     [class.is-selected]="horario() === item"
+                    [attr.aria-pressed]="horario() === item"
                     (click)="horario.set(item)"
                   >
                     {{ item }}
@@ -83,9 +159,9 @@
             <p role="alert">{{ erroAgendamento() }}</p>
           }
         }
-        @case (3) {
+        @case (4) {
           <div class="confirmation">
-            <div class="confirmation__icon">✓</div>
+            <div class="confirmation__icon" aria-hidden="true">✓</div>
             <h2>Solicitação enviada!</h2>
             <p>
               Seu pedido foi enviado ao estúdio e já está disponível na área administrativa.
@@ -120,7 +196,7 @@
       }
     </div>
 
-    @if (etapa() < 3) {
+    @if (etapa() < 4) {
       <div class="booking-navigation">
         <button
           type="button"
@@ -128,9 +204,10 @@
           [disabled]="etapa() === 0"
           (click)="voltar()"
         >
-          ← Voltar</button
-        ><button type="button" class="button" [disabled]="!podeAvancar()" (click)="avancar()">
-          {{ etapa() === 2 ? 'Confirmar' : 'Próximo' }} →
+          ← Voltar
+        </button>
+        <button type="button" class="button" [disabled]="!podeAvancar()" (click)="avancar()">
+          {{ etapa() === 3 ? 'Confirmar' : 'Próximo' }} →
         </button>
       </div>
     }
