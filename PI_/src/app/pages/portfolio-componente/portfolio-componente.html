@@ -1,0 +1,45 @@
+<section class="section">
+  <div class="container">
+    <div class="portfolio-heading">
+      <app-header-component
+        titulo="Portfólio"
+        descricao="Conheça trabalhos realizados pelos artistas da Code Ink."
+        etiqueta="Galeria"
+      />
+      <label class="search-field">
+        <span class="sr-only">Buscar tatuagens</span>
+        <input
+          type="search"
+          placeholder="Buscar por trabalho ou artista"
+          [value]="busca()"
+          (input)="atualizarBusca($event)"
+        />
+      </label>
+    </div>
+
+    <div class="filter-list" aria-label="Filtrar por estilo">
+      @for (estilo of estilos; track estilo) {
+        <button
+          type="button"
+          [class.is-active]="estiloAtivo() === estilo"
+          (click)="estiloAtivo.set(estilo)"
+        >
+          {{ estilo }}
+        </button>
+      }
+    </div>
+
+    @if (trabalhosFiltrados().length) {
+      <div class="tattoo-grid tattoo-grid--four">
+        @for (trabalho of trabalhosFiltrados(); track trabalho.id) {
+          <app-tattoo-card [trabalho]="trabalho" />
+        }
+      </div>
+    } @else {
+      <div class="empty-state">
+        <h2>Nenhum resultado encontrado</h2>
+        <p>Tente outro termo ou selecione “Todos”.</p>
+      </div>
+    }
+  </div>
+</section>

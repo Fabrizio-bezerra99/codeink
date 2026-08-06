@@ -1,0 +1,138 @@
+<section class="section">
+  <div class="container booking">
+    <app-header-component
+      titulo="Agendar tattoo"
+      descricao="Escolha o tipo de projeto, o tatuador, a data e o horário."
+      etiqueta="Agendamento"
+    />
+    <ol class="steps" aria-label="Etapas do agendamento">
+      @for (nome of etapas; track nome; let i = $index) {
+        <li [class.is-current]="i === etapa()" [class.is-complete]="i < etapa()">
+          <span>{{ i < etapa() ? '✓' : i + 1 }}</span
+          ><small>{{ nome }}</small>
+        </li>
+      }
+    </ol>
+
+    <div class="booking-panel">
+      @switch (etapa()) {
+        @case (0) {
+          <h2>Escolha uma opção</h2>
+          <div class="option-grid">
+            <button
+              type="button"
+              [class.is-selected]="opcao() === 'portfolio'"
+              (click)="opcao.set('portfolio')"
+            >
+              <span></span><strong>Escolher uma tattoo do portfólio</strong
+              ><small>Use um trabalho do catálogo como inspiração.</small>
+            </button>
+            <button
+              type="button"
+              [class.is-selected]="opcao() === 'referencia'"
+              (click)="opcao.set('referencia')"
+            >
+              <span></span><strong>Tenho uma ideia ou referência</strong
+              ><small>Descreva seu projeto e envie referências posteriormente.</small>
+            </button>
+          </div>
+        }
+        @case (1) {
+          <h2>Escolha o tatuador</h2>
+          <div class="artist-options">
+            @for (artista of artistas; track artista.id) {
+              <button
+                type="button"
+                [class.is-selected]="artistaId() === artista.id"
+                (click)="artistaId.set(artista.id)"
+              >
+                <img [src]="artista.fotoUrl" [alt]="artista.nome" /><span
+                  ><strong>{{ artista.nome }}</strong
+                  ><small>{{ artista.especialidade }}</small></span
+                ><b>★ {{ artista.avaliacao }}</b>
+              </button>
+            }
+          </div>
+        }
+        @case (2) {
+          <h2>Data e horário</h2>
+          <div class="date-time-grid">
+            <label
+              >Data<input
+                type="date"
+                [min]="dataMinima"
+                [value]="data()"
+                (input)="atualizarData($event)"
+            /></label>
+            <fieldset>
+              <legend>Horário</legend>
+              <div class="time-grid">
+                @for (item of horarios; track item) {
+                  <button
+                    type="button"
+                    [class.is-selected]="horario() === item"
+                    (click)="horario.set(item)"
+                  >
+                    {{ item }}
+                  </button>
+                }
+              </div>
+            </fieldset>
+          </div>
+          @if (erroAgendamento()) {
+            <p role="alert">{{ erroAgendamento() }}</p>
+          }
+        }
+        @case (3) {
+          <div class="confirmation">
+            <div class="confirmation__icon">✓</div>
+            <h2>Solicitação enviada!</h2>
+            <p>
+              Seu pedido foi enviado ao estúdio e já está disponível na área administrativa.
+            </p>
+
+            <dl>
+              <div>
+                <dt>Artista</dt>
+                <dd>{{ resumoAgendamento().artista }}</dd>
+              </div>
+              <div>
+                <dt>Data</dt>
+                <dd>{{ resumoAgendamento().data }}</dd>
+              </div>
+              <div>
+                <dt>Horário</dt>
+                <dd>{{ resumoAgendamento().horario }}</dd>
+              </div>
+              <div>
+                <dt>Projeto</dt>
+                <dd>{{ resumoAgendamento().projeto }}</dd>
+              </div>
+            </dl>
+
+            <button class="button button--outline" type="button" (click)="novoAgendamento()">
+              Novo agendamento
+            </button>
+
+            <a class="button" routerLink="/">Voltar ao início</a>
+          </div>
+        }
+      }
+    </div>
+
+    @if (etapa() < 3) {
+      <div class="booking-navigation">
+        <button
+          type="button"
+          class="button button--ghost"
+          [disabled]="etapa() === 0"
+          (click)="voltar()"
+        >
+          ← Voltar</button
+        ><button type="button" class="button" [disabled]="!podeAvancar()" (click)="avancar()">
+          {{ etapa() === 2 ? 'Confirmar' : 'Próximo' }} →
+        </button>
+      </div>
+    }
+  </div>
+</section>

@@ -1,0 +1,77 @@
+<section class="section">
+  <div class="container">
+    <app-header-component
+      titulo="Fale conosco"
+      descricao="Estamos aqui para tirar suas dúvidas e conversar sobre seu projeto."
+      etiqueta="Contato"
+    />
+    <div class="contact-grid">
+      <div>
+        @if (enviado()) {
+          <div class="success-state">
+            <div>✓</div>
+            <h2>Mensagem enviada!</h2>
+            <p>Retornaremos assim que possível.</p>
+            <button type="button" class="button button--outline" (click)="novaMensagem()">
+              Enviar outra mensagem
+            </button>
+          </div>
+        } @else {
+          <form [formGroup]="formulario" (ngSubmit)="enviar()" novalidate>
+            <div class="form-row">
+              <label
+                >Nome completo<input
+                  type="text"
+                  formControlName="nome"
+                  autocomplete="name" /></label
+              ><label
+                >Email<input type="email" formControlName="email" autocomplete="email"
+              /></label>
+            </div>
+            <label
+              >Assunto<select formControlName="assunto">
+                <option value="">Selecione o assunto</option>
+                <option value="agendamento">Agendamento</option>
+                <option value="orcamento">Orçamento</option>
+                <option value="duvida">Dúvida geral</option>
+                <option value="outro">Outro</option>
+              </select></label
+            >
+            <label
+              >Mensagem<textarea
+                rows="6"
+                formControlName="mensagem"
+                placeholder="Conte um pouco sobre sua ideia"
+              ></textarea>
+            </label>
+            @if (formulario.invalid && formulario.touched) {
+              <p class="form-error" role="alert">
+                Preencha corretamente todos os campos obrigatórios.
+              </p>
+            }
+            <button class="button button--full" type="submit">Enviar mensagem →</button>
+          </form>
+        }
+      </div>
+      <aside class="contact-info">
+        <article class="card">
+          <span>Telefone</span><a href="tel:+5521999999999">(21) 99999-9999</a>
+        </article>
+        <article class="card">
+          <span>Email</span><a href="mailto:contato@codeink.com.br">contato@codeink.com.br</a>
+        </article>
+        <article class="card">
+          <span>Endereço</span>
+          <p>Rua das Tatuagens, 123<br />Botafogo, Rio de Janeiro – RJ</p>
+        </article>
+        <article class="card">
+          <span>Horário</span>
+          <p>Seg–Sex: 10h às 20h<br />Sáb: 10h às 18h</p>
+        </article>
+        <div class="map-placeholder">
+          <strong>Code Ink</strong><span>Botafogo · Rio de Janeiro</span>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>

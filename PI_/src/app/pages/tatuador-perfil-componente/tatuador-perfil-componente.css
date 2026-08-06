@@ -1,0 +1,95 @@
+.back-link {
+  display: inline-block;
+  margin-bottom: 2rem;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+}
+.profile-grid {
+  display: grid;
+  grid-template-columns: minmax(16rem, 1fr) 2fr;
+  gap: clamp(2rem, 6vw, 5rem);
+}
+.profile-photo {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+}
+.profile h1 {
+  margin: 1.5rem 0 0.3rem;
+  font-size: 1.7rem;
+}
+.specialty,
+.city {
+  color: var(--text-muted);
+  font-size: 0.78rem;
+}
+.rating {
+  color: #f5ce66;
+  font-size: 0.75rem;
+}
+.rating span {
+  color: var(--text-muted);
+}
+.bio {
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+.artist-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.6rem;
+  margin: 1.5rem 0;
+  padding-top: 1.4rem;
+  border-top: 1px solid var(--border);
+  text-align: center;
+}
+.artist-stats dt {
+  font-weight: 700;
+}
+.artist-stats dd {
+  margin: 0.25rem 0 0;
+  color: var(--text-muted);
+  font-size: 0.62rem;
+}
+.profile main > h2,
+.reviews > h2 {
+  margin: 0 0 1rem;
+  font-size: 1rem;
+}
+.works-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.8rem;
+}
+.works-grid img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+}
+.reviews {
+  margin-top: 2.5rem;
+}
+.review {
+  padding: 1.2rem;
+  margin-top: 0.8rem;
+}
+.review header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  font-size: 0.76rem;
+}
+.review header span {
+  color: #f5ce66;
+}
+.review p {
+  margin: 0.8rem 0 0;
+  color: var(--text-muted);
+  line-height: 1.65;
+  font-size: 0.82rem;
+}
+@media (max-width: 760px) {
+  .profile-grid {
+    grid-template-columns: 1fr;
+  }
+}

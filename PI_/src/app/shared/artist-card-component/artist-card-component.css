@@ -1,0 +1,51 @@
+.artist-card {
+  overflow: hidden;
+}
+.artist-card__photo {
+  display: block;
+  aspect-ratio: 1;
+  overflow: hidden;
+}
+.artist-card__photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.82;
+  transition:
+    transform 0.4s ease,
+    opacity 0.4s ease;
+}
+.artist-card:hover img {
+  transform: scale(1.04);
+  opacity: 1;
+}
+.artist-card__body {
+  padding: 1.1rem;
+}
+.artist-card h2 {
+  margin: 0;
+  font-size: 1rem;
+}
+.artist-card p {
+  margin: 0.35rem 0 1rem;
+  color: var(--text-muted);
+  font-size: 0.76rem;
+}
+.artist-card__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+}
+.artist-card__meta span:first-child {
+  color: #f5ce66;
+}
+.artist-card__actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.65rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}

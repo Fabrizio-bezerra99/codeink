@@ -1,0 +1,52 @@
+<section class="section">
+  <div class="container profile">
+    <a class="back-link" routerLink="/tatuadores">← Voltar para tatuadores</a>
+    <div class="profile-grid">
+      <aside>
+        <img class="profile-photo" [src]="artista().fotoUrl" [alt]="artista().nome" />
+        <h1>{{ artista().nome }}</h1>
+        <p class="specialty">{{ artista().especialidade }}</p>
+        <p class="rating">
+          ★★★★★ <span>{{ artista().avaliacao }} ({{ artista().totalAvaliacoes }} avaliações)</span>
+        </p>
+        <p class="city">{{ artista().cidade }}</p>
+        <p class="bio">{{ artista().biografia }}</p>
+        <dl class="artist-stats">
+          <div>
+            <dt>{{ artista().anosExperiencia }}</dt>
+            <dd>Anos de experiência</dd>
+          </div>
+          <div>
+            <dt>{{ artista().tatuagensRealizadas }}+</dt>
+            <dd>Tatuagens</dd>
+          </div>
+          <div>
+            <dt>{{ artista().clientesAtendidos }}+</dt>
+            <dd>Clientes</dd>
+          </div>
+        </dl>
+        <a class="button button--full" routerLink="/agendamento">Agendar com este artista</a>
+      </aside>
+      <main>
+        <h2>Trabalhos do artista</h2>
+        <div class="works-grid">
+          @for (imagem of artista().trabalhos; track imagem) {
+            <img [src]="imagem" alt="Trabalho do artista" loading="lazy" />
+          }
+        </div>
+        <section class="reviews">
+          <h2>Avaliações</h2>
+          @for (avaliacao of avaliacoes; track avaliacao.id) {
+            <article class="card review">
+              <header>
+                <strong>{{ avaliacao.autor }}</strong
+                ><span>★★★★★ · {{ avaliacao.data }}</span>
+              </header>
+              <p>{{ avaliacao.comentario }}</p>
+            </article>
+          }
+        </section>
+      </main>
+    </div>
+  </div>
+</section>

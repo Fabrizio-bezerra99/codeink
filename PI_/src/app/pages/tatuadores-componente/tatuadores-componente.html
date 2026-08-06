@@ -1,0 +1,14 @@
+<section class="section">
+  <div class="container">
+    <app-header-component
+      titulo="Nossos tatuadores"
+      descricao="Conheça os artistas que vão transformar sua ideia em arte."
+      etiqueta="Equipe"
+    />
+    <div class="artist-grid">
+      @for (artista of artistas; track artista.id) {
+        <app-artist-card [artista]="artista" />
+      }
+    </div>
+  </div>
+</section>

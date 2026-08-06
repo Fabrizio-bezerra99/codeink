@@ -1,0 +1,89 @@
+<section class="section">
+  <div class="container profile-layout">
+    <aside>
+      <div class="client-card card">
+        <div class="avatar">{{ authService.usuarioAtual()?.nome?.slice(0, 2)?.toUpperCase() }}</div>
+        <h1>{{ authService.usuarioAtual()?.nome }}</h1>
+        <p>Cliente</p>
+      </div>
+      <nav class="profile-nav card" aria-label="Área do cliente">
+        <a routerLink="/agendamento"
+          >Agendamentos <span>{{ totalAgendamentos() }}</span></a
+        ><button type="button">Favoritos</button><button type="button">Inspirações</button
+        ><button type="button">Configurações</button
+        ><button type="button" (click)="sair()">Sair</button>
+      </nav>
+    </aside>
+    <main>
+      <div class="stats-grid">
+        <article class="card">
+          <strong>{{ totalAgendamentos() }}</strong
+          ><span>Agendamentos</span>
+        </article>
+        <article class="card"><strong>5</strong><span>Inspirações salvas</span></article>
+        <article class="card"><strong>2</strong><span>Avaliações</span></article>
+      </div>
+      <section class="panel card">
+        <h2>Informações pessoais</h2>
+        <dl>
+          <div>
+            <dt>Nome</dt>
+            <dd>{{ authService.usuarioAtual()?.nome }}</dd>
+          </div>
+          <div>
+            <dt>Email</dt>
+            <dd>{{ authService.usuarioAtual()?.email }}</dd>
+          </div>
+          <div>
+            <dt>Telefone</dt>
+            <dd>(21) 99999-9999</dd>
+          </div>
+          <div>
+            <dt>Data de nascimento</dt>
+            <dd>15/05/1995</dd>
+          </div>
+        </dl>
+        <button class="button button--small button--outline" type="button">
+          Editar informações
+        </button>
+      </section>
+      <section class="panel card">
+        <header>
+          <h2>Agendamentos</h2>
+          <a routerLink="/agendamento">Novo →</a>
+        </header>
+        <div class="appointment-list">
+          @for (item of agendamentos(); track item.id) {
+            <article>
+              <div>
+                <strong>{{ item.artista }}</strong
+                ><span
+                  >{{ item.data }} · {{ item.horario
+                  }}{{ item.projeto ? ' · ' + item.projeto : '' }}</span
+                >
+              </div>
+              <span
+                class="status"
+                [class.status--success]="item.status === 'Confirmado'"
+                [class.status--warning]="item.status === 'Pendente'"
+                >{{ item.status }}</span
+              >
+            </article>
+          } @empty {
+            <p>Nenhum agendamento encontrado.</p>
+          }
+        </div>
+      </section>
+      <section class="panel card">
+        <h2>Favoritos</h2>
+        <div class="favorite-list">
+          @for (item of favoritos; track item.id) {
+            <a [routerLink]="['/portfolio', item.id]"
+              ><img [src]="item.imagemUrl" [alt]="item.titulo"
+            /></a>
+          }
+        </div>
+      </section>
+    </main>
+  </div>
+</section>

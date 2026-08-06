@@ -1,0 +1,130 @@
+.admin-bookings {
+  width: min(calc(100% - 2.5rem), var(--container));
+  margin-inline: auto;
+  padding-block: clamp(2.5rem, 6vw, 5rem);
+}
+
+.admin-bookings__header {
+  display: grid;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+}
+
+.admin-bookings__header p,
+.admin-bookings__header h1,
+.admin-bookings__header span {
+  margin: 0;
+}
+
+.admin-bookings__header p {
+  color: var(--text-muted);
+  font-size: 0.68rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.admin-bookings__header h1 {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+}
+
+.admin-bookings__header span {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  background: var(--surface-raised);
+}
+
+table {
+  width: 100%;
+  min-width: 52rem;
+  border-collapse: collapse;
+  font-size: 0.75rem;
+}
+
+th,
+td {
+  padding: 1rem;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  white-space: nowrap;
+}
+
+th {
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+tbody tr {
+  transition: background 0.2s ease;
+}
+
+tbody tr:hover {
+  background: var(--surface-soft);
+}
+
+tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.booking-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.action-button {
+  min-height: 2.15rem;
+  border: 1px solid var(--border-strong);
+  background: transparent;
+  color: var(--text-secondary);
+  padding: 0.45rem 0.75rem;
+  font-size: 0.67rem;
+  font-weight: 600;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.action-button--confirm {
+  border-color: rgb(80 210 130 / 0.45);
+  color: #72d89a;
+}
+
+.action-button--confirm:not(:disabled):hover {
+  background: rgb(80 210 130 / 0.12);
+  border-color: #72d89a;
+}
+
+.action-button--cancel {
+  border-color: rgb(235 100 100 / 0.45);
+  color: #ef8b8b;
+}
+
+.action-button--cancel:not(:disabled):hover {
+  background: rgb(235 100 100 / 0.12);
+  border-color: #ef8b8b;
+}
+
+.action-button:disabled {
+  cursor: not-allowed;
+  border-color: var(--border);
+  color: var(--text-muted);
+  opacity: 0.35;
+}
+
+.status--danger {
+  border-color: rgb(235 100 100 / 0.35);
+  background: rgb(235 100 100 / 0.08);
+  color: #ef8b8b;
+}
+
+.status--finished {
+  border-color: rgb(165 140 235 / 0.35);
+  background: rgb(165 140 235 / 0.08);
+  color: #b9a3f5;
+}

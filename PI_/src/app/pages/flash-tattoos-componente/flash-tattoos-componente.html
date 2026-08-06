@@ -1,0 +1,41 @@
+<section class="section">
+  <div class="container">
+    <app-header-component
+      titulo="Flash tattoos"
+      descricao="Artes exclusivas prontas para serem tatuadas."
+      etiqueta="Catálogo"
+    />
+    <div class="filter-list" aria-label="Filtrar por tamanho">
+      @for (tamanho of tamanhos; track tamanho) {
+        <button
+          type="button"
+          [class.is-active]="tamanhoAtivo() === tamanho"
+          (click)="tamanhoAtivo.set(tamanho)"
+        >
+          {{ tamanho }}
+        </button>
+      }
+    </div>
+    <div class="flash-grid">
+      @for (item of tattoos(); track item.id) {
+        <article class="flash-card card">
+          <div class="flash-card__image">
+            <img [src]="item.imagemUrl" [alt]="item.titulo" loading="lazy" /><span>{{
+              item.tamanho
+            }}</span>
+          </div>
+          <div class="flash-card__body">
+            <h2>{{ item.titulo }}</h2>
+            <strong>{{ item.preco | currency: 'BRL' : 'symbol' : '1.0-0' }}</strong
+            ><a class="button button--small button--full" routerLink="/agendamento">Agendar</a>
+          </div>
+        </article>
+      }
+    </div>
+    <div class="custom-cta card">
+      <p>Não encontrou o desenho ideal?</p>
+      <h2>Crie uma tatuagem personalizada</h2>
+      <a class="button button--outline" routerLink="/agendamento">Enviar uma referência →</a>
+    </div>
+  </div>
+</section>

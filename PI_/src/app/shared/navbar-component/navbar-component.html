@@ -1,0 +1,65 @@
+<header class="navbar">
+  <nav class="container navbar__content" aria-label="Navegação principal">
+    <a class="brand" routerLink="/" aria-label="Code Ink — página inicial" (click)="fecharMenu()">
+      <strong>CODE INK</strong>
+      <span>ESTÚDIO</span>
+    </a>
+
+    <div class="navbar__links" aria-label="Páginas do site">
+      @for (link of links; track link.rota) {
+        <a
+          [routerLink]="link.rota"
+          routerLinkActive="is-active"
+          [routerLinkActiveOptions]="{ exact: link.exata ?? false }"
+          >{{ link.rotulo }}</a
+        >
+      }
+    </div>
+
+    <div class="navbar__actions">
+      @if (authService.estaAutenticado()) {
+        <a
+          class="button button--small button--outline"
+          [routerLink]="rotaDaConta()"
+        >
+          Minha conta
+        </a>
+      } @else {
+        <a class="button button--small button--outline" routerLink="/login">Entrar</a>
+      }
+
+      <button
+        class="menu-button"
+        type="button"
+        [attr.aria-expanded]="menuAberto()"
+        aria-controls="menu-mobile"
+        aria-label="Abrir ou fechar menu"
+        (click)="alternarMenu()"
+      >
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  @if (menuAberto()) {
+    <div class="navbar__mobile" id="menu-mobile">
+      <div class="container navbar__mobile-content">
+        @for (link of links; track link.rota) {
+          <a [routerLink]="link.rota" routerLinkActive="is-active" (click)="fecharMenu()">{{
+            link.rotulo
+          }}</a>
+        }
+        @if (authService.estaAutenticado()) {
+          <a
+            [routerLink]="rotaDaConta()"
+            (click)="fecharMenu()"
+          >
+            Minha conta
+          </a>
+        } @else {
+          <a routerLink="/login" (click)="fecharMenu()"> Entrar </a>
+        }
+      </div>
+    </div>
+  }
+</header>

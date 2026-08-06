@@ -1,0 +1,19 @@
+<article class="artist-card card">
+  <a class="artist-card__photo" [routerLink]="['/tatuadores', artista().id]">
+    <img [src]="artista().fotoUrl" [alt]="'Foto de ' + artista().nome" loading="lazy" />
+  </a>
+  <div class="artist-card__body">
+    <h2>{{ artista().nome }}</h2>
+    <p>{{ artista().especialidade }}</p>
+    <div class="artist-card__meta">
+      <span aria-label="Avaliação">★ {{ artista().avaliacao }}</span
+      ><span>{{ artista().cidade }}</span>
+    </div>
+    <div class="artist-card__actions">
+      <a class="button button--small button--outline" [routerLink]="['/tatuadores', artista().id]"
+        >Ver perfil</a
+      >
+      <a class="button button--small" routerLink="/agendamento">Agendar</a>
+    </div>
+  </div>
+</article>

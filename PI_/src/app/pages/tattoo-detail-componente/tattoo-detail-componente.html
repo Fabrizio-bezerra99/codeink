@@ -1,0 +1,87 @@
+<section class="section detail-page">
+  <div class="container">
+    <a class="back-link" routerLink="/portfolio">← Voltar para o portfólio</a>
+    <div class="detail-grid">
+      <div>
+        <figure class="detail-image">
+          <img [src]="trabalho().imagemUrl" [alt]="trabalho().titulo" />
+        </figure>
+        <div class="detail-navigation">
+          @if (anterior(); as item) {
+            <a [routerLink]="['/portfolio', item.id]">← Anterior</a>
+          } @else {
+            <span></span>
+          }
+          @if (proximo(); as item) {
+            <a [routerLink]="['/portfolio', item.id]">Próximo →</a>
+          }
+        </div>
+        <div class="thumbnail-list">
+          @for (imagem of artista().trabalhos; track imagem) {
+            <img [src]="imagem" alt="Outro trabalho do artista" loading="lazy" />
+          }
+        </div>
+      </div>
+
+      <article class="detail-content">
+        <header class="detail-title">
+          <div>
+            <p class="eyebrow">{{ trabalho().estilo }}</p>
+            <h1>{{ trabalho().titulo }}</h1>
+          </div>
+          <button
+            class="favorite-button"
+            type="button"
+            [class.is-active]="favorito()"
+            [attr.aria-pressed]="favorito()"
+            (click)="favorito.update((v) => !v)"
+            aria-label="Adicionar aos favoritos"
+          >
+            ♡
+          </button>
+        </header>
+
+        <a class="artist-summary card" [routerLink]="['/tatuadores', artista().id]">
+          <img [src]="artista().fotoUrl" [alt]="artista().nome" />
+          <span
+            ><strong>{{ artista().nome }}</strong
+            ><small>{{ artista().especialidade }}</small></span
+          >
+          <b>★ {{ artista().avaliacao }}</b>
+        </a>
+
+        <dl class="detail-meta">
+          <div>
+            <dt>Tempo de execução</dt>
+            <dd>{{ trabalho().duracao }}</dd>
+          </div>
+          <div>
+            <dt>Sessões</dt>
+            <dd>{{ trabalho().sessoes }}</dd>
+          </div>
+          <div>
+            <dt>Local</dt>
+            <dd>{{ trabalho().local }}</dd>
+          </div>
+        </dl>
+
+        <div class="description">
+          <h2>Descrição</h2>
+          <p>{{ trabalho().descricao }}</p>
+        </div>
+        <a class="button button--full" routerLink="/agendamento">Agendar uma tattoo semelhante</a>
+
+        <div class="similar">
+          <h2>Outras inspirações</h2>
+          <div>
+            @for (item of semelhantes(); track item.id) {
+              <a [routerLink]="['/portfolio', item.id]"
+                ><img [src]="item.imagemUrl" [alt]="item.titulo" loading="lazy"
+              /></a>
+            }
+          </div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>

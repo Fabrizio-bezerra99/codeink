@@ -1,0 +1,62 @@
+<section class="hero" aria-labelledby="hero-title">
+  <img
+  class="hero__image"
+  src="/images/home-tattoo.png"
+  alt="Tatuador realizando uma tatuagem no estúdio Code Ink"
+/>
+  <div class="hero__shade"></div>
+  <div class="container hero__content">
+    <p class="eyebrow">Code Ink Estúdio · Rio de Janeiro</p>
+    <h1 id="hero-title">ARTE QUE<br /><span>MARCA</span><br />HISTÓRIAS.</h1>
+    <p class="hero__description">
+      Transformamos ideias em tatuagens exclusivas com técnica, criatividade e personalidade.
+    </p>
+    <div class="hero__actions">
+      <a class="button" routerLink="/agendamento"
+        >Agendar sua tattoo <span aria-hidden="true">→</span></a
+      >
+      <a class="button button--outline" routerLink="/portfolio">Ver portfólio</a>
+    </div>
+  </div>
+</section>
+
+<section class="features" aria-label="Diferenciais do estúdio">
+  <div class="container features__grid">
+    @for (item of diferenciais; track item.titulo) {
+      <article>
+        <span class="features__marker" aria-hidden="true"></span>
+        <div>
+          <h2>{{ item.titulo }}</h2>
+          <p>{{ item.descricao }}</p>
+        </div>
+      </article>
+    }
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="section-heading">
+      <div>
+        <p class="eyebrow">Portfólio</p>
+        <h2>Últimos trabalhos</h2>
+      </div>
+      <a class="text-link" routerLink="/portfolio">Ver portfólio completo →</a>
+    </div>
+    <div class="tattoo-grid tattoo-grid--four">
+      @for (trabalho of trabalhosRecentes; track trabalho.id) {
+        <app-tattoo-card [trabalho]="trabalho" />
+      }
+    </div>
+  </div>
+</section>
+
+<section class="cta-section">
+  <div class="container cta-section__content">
+    <div>
+      <h2>Pronto para sua próxima tattoo?</h2>
+      <p>Agende uma conversa inicial com nossos artistas.</p>
+    </div>
+    <a class="button" routerLink="/agendamento">Agendar agora <span aria-hidden="true">→</span></a>
+  </div>
+</section>

@@ -1,0 +1,114 @@
+.auth-page {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 3rem 1.25rem;
+  background: radial-gradient(circle at top, #202020, var(--surface-base) 45%);
+}
+.auth-brand {
+  position: absolute;
+  top: 2rem;
+  left: 2rem;
+  display: flex;
+  flex-direction: column;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+}
+.auth-brand span {
+  margin-top: 0.2rem;
+  color: var(--text-muted);
+  font-size: 0.58rem;
+}
+.auth-card {
+  width: min(100%, 27rem);
+  padding: clamp(1.5rem, 5vw, 2.5rem);
+  border: 1px solid var(--border);
+  background: rgb(17 17 17 / 0.88);
+}
+.auth-card header {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+.auth-card h1 {
+  margin: 0.4rem 0;
+  font-size: 1.8rem;
+}
+.auth-card header > p:last-child {
+  color: var(--text-muted);
+  font-size: 0.78rem;
+}
+.auth-card form {
+  display: grid;
+  gap: 1rem;
+}
+.auth-card form > label {
+  display: grid;
+  gap: 0.55rem;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+}
+.password-field {
+  position: relative;
+  display: block;
+}
+.password-field input {
+  width: 100%;
+  padding-right: 5rem;
+}
+.password-field button {
+  position: absolute;
+  top: 50%;
+  right: 0.8rem;
+  border: 0;
+  background: none;
+  color: var(--text-muted);
+  font-size: 0.68rem;
+  transform: translateY(-50%);
+}
+.auth-options {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: var(--text-muted);
+  font-size: 0.68rem;
+}
+.checkbox input {
+  width: auto;
+}
+.link-button {
+  border: 0;
+  background: none;
+  color: var(--text-muted);
+  font-size: 0.68rem;
+}
+.form-error {
+  margin: 0;
+  color: #ff8795;
+  font-size: 0.75rem;
+}
+.demo-info {
+  display: grid;
+  gap: 0.3rem;
+  margin-top: 1.3rem;
+  padding: 0.9rem;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: 0.67rem;
+}
+.demo-info strong {
+  color: var(--text-secondary);
+}
+.auth-footer {
+  margin: 1.5rem 0 0;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  text-align: center;
+}
+.auth-footer a {
+  color: var(--text-primary);
+}

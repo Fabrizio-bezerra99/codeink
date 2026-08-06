@@ -1,0 +1,207 @@
+.booking {
+  max-width: 55rem;
+}
+.steps {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  margin: 0 0 3rem;
+  padding: 0;
+  list-style: none;
+}
+.steps li {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  color: var(--text-faint);
+}
+.steps li:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: 1rem;
+  left: calc(50% + 1.4rem);
+  right: calc(-50% + 1.4rem);
+  height: 1px;
+  background: var(--border);
+}
+.steps span {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  width: 2rem;
+  height: 2rem;
+  place-items: center;
+  border: 1px solid var(--border-strong);
+  background: var(--surface-base);
+  font-size: 0.7rem;
+}
+.steps small {
+  margin-top: 0.55rem;
+  font-size: 0.62rem;
+}
+.steps .is-current,
+.steps .is-complete {
+  color: var(--text-primary);
+}
+.steps .is-current span {
+  border-color: var(--text-primary);
+}
+.steps .is-complete span {
+  background: var(--text-primary);
+  color: var(--surface-base);
+}
+.booking-panel h2 {
+  margin: 0 0 1.5rem;
+  font-size: 1rem;
+}
+.option-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+.option-grid button,
+.artist-options button {
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-primary);
+  text-align: left;
+}
+.option-grid button {
+  display: flex;
+  min-height: 11rem;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 1.5rem;
+}
+.option-grid button > span {
+  width: 0.9rem;
+  height: 0.9rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 50%;
+}
+.option-grid small,
+.artist-options small {
+  margin-top: 0.4rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+.option-grid button.is-selected,
+.artist-options button.is-selected {
+  border-color: var(--text-primary);
+  background: var(--surface-soft);
+}
+.option-grid button.is-selected > span {
+  border: 0.25rem solid var(--text-primary);
+}
+.artist-options {
+  display: grid;
+  gap: 0.75rem;
+}
+.artist-options button {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.85rem;
+}
+.artist-options img {
+  width: 3.3rem;
+  height: 3.3rem;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.artist-options span {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+.artist-options b {
+  color: #f5ce66;
+  font-size: 0.75rem;
+}
+.date-time-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.3fr;
+  gap: 2rem;
+}
+.date-time-grid label,
+.date-time-grid legend {
+  color: var(--text-muted);
+  font-size: 0.72rem;
+}
+.date-time-grid input {
+  width: 100%;
+  margin-top: 0.7rem;
+}
+.date-time-grid fieldset {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.time-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.55rem;
+  margin-top: 0.7rem;
+}
+.time-grid button {
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  padding: 0.75rem 0.3rem;
+}
+.time-grid button.is-selected {
+  background: var(--text-primary);
+  color: var(--surface-base);
+}
+.booking-navigation {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+}
+.confirmation {
+  text-align: center;
+}
+.confirmation__icon {
+  display: grid;
+  width: 4rem;
+  height: 4rem;
+  margin: 0 auto 1.5rem;
+  place-items: center;
+  background: var(--surface-soft);
+  font-size: 1.5rem;
+}
+.confirmation > p {
+  max-width: 30rem;
+  margin: 0 auto 1.5rem;
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+.confirmation dl {
+  max-width: 28rem;
+  margin: 0 auto 2rem;
+  padding: 1.25rem;
+  border: 1px solid var(--border);
+  background: var(--surface-raised);
+}
+.confirmation dl div {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.45rem 0;
+  font-size: 0.75rem;
+}
+.confirmation dt {
+  color: var(--text-muted);
+}
+@media (max-width: 650px) {
+  .steps small {
+    display: none;
+  }
+  .option-grid,
+  .date-time-grid {
+    grid-template-columns: 1fr;
+  }
+}

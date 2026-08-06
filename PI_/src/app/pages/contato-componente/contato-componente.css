@@ -1,0 +1,92 @@
+.contact-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: clamp(2rem, 6vw, 5rem);
+}
+form {
+  display: grid;
+  gap: 1rem;
+}
+form label {
+  display: grid;
+  gap: 0.55rem;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+}
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+.form-error {
+  margin: 0;
+  color: #ff8795;
+  font-size: 0.75rem;
+}
+.contact-info {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+.contact-info article {
+  padding: 1.1rem;
+}
+.contact-info span {
+  display: block;
+  margin-bottom: 0.45rem;
+  color: var(--text-muted);
+  font-size: 0.67rem;
+}
+.contact-info a,
+.contact-info p {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 0.8rem;
+  line-height: 1.55;
+}
+.map-placeholder {
+  grid-column: 1 / -1;
+  min-height: 13rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  background:
+    linear-gradient(rgb(0 0 0 / 0.6), rgb(0 0 0 / 0.75)),
+    url('/images/studio-hero.jpeg') center / cover;
+  border: 1px solid var(--border);
+}
+.map-placeholder span {
+  margin-top: 0.4rem;
+  color: var(--text-secondary);
+}
+.success-state {
+  padding: 5rem 1rem;
+  text-align: center;
+}
+.success-state > div {
+  display: grid;
+  width: 4rem;
+  height: 4rem;
+  margin: 0 auto 1.4rem;
+  place-items: center;
+  background: var(--surface-soft);
+  font-size: 1.5rem;
+}
+.success-state p {
+  color: var(--text-muted);
+}
+@media (max-width: 760px) {
+  .contact-grid {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 500px) {
+  .form-row,
+  .contact-info {
+    grid-template-columns: 1fr;
+  }
+  .map-placeholder {
+    grid-column: auto;
+  }
+}

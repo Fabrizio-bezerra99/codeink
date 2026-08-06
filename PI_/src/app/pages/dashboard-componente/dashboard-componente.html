@@ -1,0 +1,100 @@
+<div class="dashboard">
+  <aside class="dashboard-sidebar">
+    <div class="admin-user">
+      <div>A</div>
+
+      <span>
+        <strong>Admin</strong>
+        <small>Administrador</small>
+      </span>
+    </div>
+
+    <nav>
+      <a routerLink="/dashboard" class="is-active">Dashboard</a>
+      <a routerLink="/dashboard/agendamentos">Agendamentos</a>
+      <a routerLink="/portfolio">Portfólio</a>
+      <a routerLink="/flash">Flash tattoos</a>
+      <a routerLink="/tatuadores">Tatuadores</a>
+      <button type="button">Configurações</button>
+      <button type="button" (click)="sair()">Sair</button>
+    </nav>
+  </aside>
+
+  <main class="dashboard-main">
+    <header>
+      <p class="eyebrow">Área administrativa</p>
+      <h1>Dashboard</h1>
+      <p>Visão geral da operação do estúdio.</p>
+    </header>
+
+    <section class="dashboard-stats" aria-label="Indicadores">
+      @for (item of indicadores(); track item.rotulo) {
+        <article class="card">
+          <span>↗</span>
+          <strong>{{ item.valor }}</strong>
+          <h2>{{ item.rotulo }}</h2>
+          <p>{{ item.detalhe }}</p>
+        </article>
+      }
+    </section>
+
+    <section class="dashboard-panel card">
+      <header>
+        <h2>Agendamentos recentes</h2>
+        <a routerLink="/dashboard/agendamentos">Ver todos →</a>
+      </header>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Cliente</th>
+              <th scope="col">Tatuador</th>
+              <th scope="col">Data</th>
+              <th scope="col">Horário</th>
+              <th scope="col">Status</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            @for (item of agendamentos(); track item.id) {
+              <tr>
+                <td>{{ item.cliente }}</td>
+                <td>{{ item.artista }}</td>
+                <td>{{ item.data }}</td>
+                <td>{{ item.horario }}</td>
+                <td>
+                  <span
+                    class="status"
+                    [class.status--success]="item.status === 'Confirmado'"
+                    [class.status--warning]="item.status === 'Pendente'"
+                  >
+                    {{ item.status }}
+                  </span>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="quick-links">
+      <a class="card" routerLink="/portfolio">
+        Gerenciar portfólio
+      </a>
+
+      <a class="card" routerLink="/tatuadores">
+        Gerenciar tatuadores
+      </a>
+
+      <a class="card" routerLink="/flash">
+        Flash tattoos
+      </a>
+
+      <a class="card" routerLink="/">
+        Ver site
+      </a>
+    </section>
+  </main>
+</div>

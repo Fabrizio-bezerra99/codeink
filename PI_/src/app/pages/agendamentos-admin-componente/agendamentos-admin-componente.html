@@ -1,0 +1,78 @@
+<section class="admin-bookings">
+  <header class="admin-bookings__header">
+    <p>Área administrativa</p>
+    <h1>Gerenciar agendamentos</h1>
+    <span>{{ agendamentos().length }} agendamentos cadastrados</span>
+  </header>
+
+  @if (mensagemErro()) {
+    <p role="alert">{{ mensagemErro() }}</p>
+  }
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">Cliente</th>
+          <th scope="col">Tatuador</th>
+          <th scope="col">Data</th>
+          <th scope="col">Horário</th>
+          <th scope="col">Status</th>
+          <th scope="col">Ações</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        @for (agendamento of agendamentos(); track agendamento.id) {
+          <tr>
+            <td>{{ agendamento.cliente }}</td>
+            <td>{{ agendamento.artista }}</td>
+            <td>{{ agendamento.data }}</td>
+            <td>{{ agendamento.horario }}</td>
+            <td>
+              <span
+                class="status"
+                [class.status--success]="agendamento.status === 'Confirmado'"
+                [class.status--warning]="agendamento.status === 'Pendente'"
+                [class.status--danger]="agendamento.status === 'Cancelado'"
+                [class.status--finished]="agendamento.status === 'Finalizado'"
+              >
+                {{ agendamento.status }}
+              </span>
+            </td>
+
+            <td>
+              <div class="booking-actions">
+                <button
+                  type="button"
+                  class="action-button action-button--confirm"
+                  [disabled]="agendamento.status !== 'Pendente' || estaAtualizando(agendamento.id)"
+                  (click)="atualizarStatus(agendamento.id, 'Confirmado')"
+                >
+                  Confirmar
+                </button>
+
+                <button
+                  type="button"
+                  class="action-button action-button--cancel"
+                  [disabled]="
+                    agendamento.status === 'Cancelado' ||
+                    agendamento.status === 'Finalizado' ||
+                    estaAtualizando(agendamento.id)
+                  "
+                  (click)="atualizarStatus(agendamento.id, 'Cancelado')"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="6">Nenhum agendamento encontrado.</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</section>

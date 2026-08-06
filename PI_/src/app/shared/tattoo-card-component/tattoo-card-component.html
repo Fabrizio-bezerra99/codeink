@@ -1,0 +1,16 @@
+<article class="tattoo-card">
+  <a
+    class="tattoo-card__image"
+    [routerLink]="['/portfolio', trabalho().id]"
+    [attr.aria-label]="'Ver detalhes de ' + trabalho().titulo"
+  >
+    <img [src]="trabalho().imagemUrl" [alt]="trabalho().titulo" loading="lazy" />
+    <div class="tattoo-card__overlay">
+      <strong>{{ trabalho().titulo }}</strong>
+      <span>{{ trabalho().artista }}</span>
+    </div>
+  </a>
+  @if (mostrarEstilo()) {
+    <span class="tattoo-card__tag">{{ trabalho().estilo }}</span>
+  }
+</article>
