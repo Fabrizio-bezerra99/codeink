@@ -23,10 +23,16 @@ export class AgendamentoService {
   private readonly agendamentosPersonalizados =
     this.carregarAgendamentos();
 
-  constructor(private readonly http: HttpClient) {}
+  constructor(private readonly http: HttpClient) { }
 
   listarResumos(): Observable<AgendamentoResumo[]> {
     return this.listar();
+  }
+
+  listarMeusAgendamentos(): Observable<AgendamentoResumo[]> {
+    return this.http.get<AgendamentoResumo[]>(
+      `${this.apiUrl}/meus`,
+    );
   }
 
   listarResumosLocais(): readonly AgendamentoResumo[] {
