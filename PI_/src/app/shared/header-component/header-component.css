@@ -1,14 +1,20 @@
 .page-header {
-  margin-bottom: clamp(2rem, 5vw, 3.5rem);
+  margin-bottom: var(--page-header-margin-bottom, clamp(2rem, 5vw, 3.5rem));
+}
+.page-header .eyebrow {
+  color: var(--page-header-eyebrow-color, var(--text-muted));
+  font-size: var(--page-header-eyebrow-size, 0.68rem);
 }
 .page-header h1 {
-  margin: 0;
-  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  margin: var(--page-header-title-margin, 0);
+  font-size: var(--page-header-title-size, clamp(1.75rem, 4vw, 2.5rem));
+  line-height: 1.15;
   letter-spacing: -0.03em;
 }
 .page-header > p:not(.eyebrow) {
   max-width: 42rem;
-  margin: 0.65rem 0 0;
-  color: var(--text-muted);
+  margin: var(--page-header-description-margin, 0.65rem 0 0);
+  color: var(--page-header-description-color, var(--text-muted));
+  font-size: var(--page-header-description-size, 1rem);
   line-height: 1.7;
 }

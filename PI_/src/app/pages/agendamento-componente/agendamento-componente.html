@@ -1,6 +1,7 @@
-<section class="section">
+<section class="section booking-section">
   <div class="container booking">
     <app-header-component
+      class="booking-header"
       titulo="Agendar tattoo"
       descricao="Escolha o tipo de projeto, os detalhes, o tatuador, a data e o horário."
       etiqueta="Agendamento"
@@ -25,7 +26,7 @@
               [attr.aria-pressed]="opcao() === 'portfolio'"
               (click)="selecionarOpcao('portfolio')"
             >
-              <span aria-hidden="true"></span>
+              <span aria-hidden="true">01</span>
               <strong>Escolher uma tattoo do portfólio</strong>
               <small>Use um trabalho do catálogo como inspiração.</small>
             </button>
@@ -35,9 +36,9 @@
               [attr.aria-pressed]="opcao() === 'referencia'"
               (click)="selecionarOpcao('referencia')"
             >
-              <span aria-hidden="true"></span>
+              <span aria-hidden="true">02</span>
               <strong>Tenho uma ideia ou referência</strong>
-              <small>Descreva seu projeto e, se quiser, escolha uma imagem.</small>
+              <small>Descreva seu projeto e envie uma imagem opcional.</small>
             </button>
           </div>
         }
@@ -73,26 +74,32 @@
             <h2>Conte mais sobre o seu projeto</h2>
             <div class="reference-form">
               <label for="descricao-referencia">
-                Descrição do projeto <span aria-hidden="true">*</span>
+                <span class="reference-form__label">
+                  Descrição do projeto <span aria-hidden="true">*</span>
+                </span>
                 <textarea
                   id="descricao-referencia"
                   rows="6"
                   [value]="descricaoReferencia()"
+                  placeholder="Explique a ideia, o local do corpo, o tamanho e outros detalhes importantes."
                   aria-required="true"
                   (input)="atualizarDescricaoReferencia($event)"
                 ></textarea>
               </label>
-              <p class="field-help">Explique a ideia, o local do corpo, o tamanho ou outros detalhes importantes.</p>
 
-              <label for="arquivo-referencia">Imagem de referência (opcional)</label>
-              <input
-                id="arquivo-referencia"
-                type="file"
-                accept="image/png,image/jpeg,image/webp"
-                [attr.aria-describedby]="erroDetalhesProjeto() ? 'erro-detalhes-projeto' : null"
-                (change)="atualizarArquivoReferencia($event)"
-              />
-              <small class="field-help">PNG, JPG ou JPEG, WEBP, até 5 MB.</small>
+              <p class="reference-form__label">Imagem de referência · opcional</p>
+              <label class="upload-field" for="arquivo-referencia">
+                <input
+                  class="upload-field__input"
+                  id="arquivo-referencia"
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp"
+                  [attr.aria-describedby]="erroDetalhesProjeto() ? 'erro-detalhes-projeto' : null"
+                  (change)="atualizarArquivoReferencia($event)"
+                />
+                <span class="upload-field__button">Escolher imagem</span>
+                <span class="upload-field__help">PNG, JPG ou WEBP · até 5 MB</span>
+              </label>
 
               @if (nomeArquivoReferencia()) {
                 <p class="selected-file">Arquivo selecionado: {{ nomeArquivoReferencia() }}</p>
@@ -163,9 +170,7 @@
           <div class="confirmation">
             <div class="confirmation__icon" aria-hidden="true">✓</div>
             <h2>Solicitação enviada!</h2>
-            <p>
-              Seu pedido foi enviado ao estúdio e já está disponível na área administrativa.
-            </p>
+            <p>Seu pedido foi enviado ao estúdio e já está disponível na área administrativa.</p>
 
             <dl>
               <div>
