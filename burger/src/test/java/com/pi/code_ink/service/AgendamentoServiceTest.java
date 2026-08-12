@@ -12,13 +12,17 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.pi.code_ink.dto.AgendamentoRequest;
 import com.pi.code_ink.dto.AgendamentoResponse;
 import com.pi.code_ink.dto.AtualizarStatusAgendamentoRequest;
 import com.pi.code_ink.entity.Agendamento;
+import com.pi.code_ink.entity.Usuario;
+import com.pi.code_ink.enums.Role;
 import com.pi.code_ink.exception.NotFoundException;
 import com.pi.code_ink.mapper.AgendamentoMapper;
 import com.pi.code_ink.repository.AgendamentoRepository;
 import com.pi.code_ink.repository.UsuarioRepository;
+import org.mockito.ArgumentCaptor;
 
 class AgendamentoServiceTest {
 
@@ -40,6 +44,43 @@ class AgendamentoServiceTest {
                 usuarioRepository,
                 agendamentoMapper
         );
+    }
+
+    @Test
+    void deveUsarUsuarioAutenticadoEStatusPendenteAoCriarAgendamento() {
+        AgendamentoRequest request = new AgendamentoRequest();
+        request.setCliente("Outra Pessoa");
+        request.setArtista("Lucas Oliveira");
+        request.setData("30/08/2026");
+        request.setHorario("15:00");
+        request.setStatus("Finalizado");
+        request.setProjeto("Inspiração do portfólio");
+
+        Usuario usuarioAutenticado = Usuario.builder()
+                .nome("Fabrício")
+                .email("fabricio@exemplo.com")
+                .perfil(Role.CLIENTE)
+                .build();
+
+        when(usuarioRepository.findByEmail("fabricio@exemplo.com"))
+                .thenReturn(Optional.of(usuarioAutenticado));
+        when(agendamentoRepository.save(any(Agendamento.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        AgendamentoResponse response = agendamentoService.criar(
+                request,
+                "fabricio@exemplo.com"
+        );
+
+        ArgumentCaptor<Agendamento> captor = ArgumentCaptor.forClass(Agendamento.class);
+        verify(agendamentoRepository).save(captor.capture());
+
+        Agendamento agendamentoSalvo = captor.getValue();
+        assertEquals("Fabrício", agendamentoSalvo.getCliente());
+        assertEquals("Pendente", agendamentoSalvo.getStatus());
+        assertEquals("Fabrício", response.getCliente());
+        assertEquals("Pendente", response.getStatus());
+        verify(usuarioRepository).findByEmail("fabricio@exemplo.com");
     }
 
     @Test

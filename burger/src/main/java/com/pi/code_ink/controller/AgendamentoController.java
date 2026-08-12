@@ -51,8 +51,13 @@ public class AgendamentoController {
     }
 
     @PostMapping
-    public ResponseEntity<AgendamentoResponse> criar(@Valid @RequestBody AgendamentoRequest request) {
-        return ResponseEntity.ok(agendamentoService.criar(request));
+    public ResponseEntity<AgendamentoResponse> criar(
+            @Valid @RequestBody AgendamentoRequest request,
+            Principal principal
+    ) {
+        return ResponseEntity.ok(
+                agendamentoService.criar(request, principal.getName())
+        );
     }
 
     @PutMapping("/{id}")

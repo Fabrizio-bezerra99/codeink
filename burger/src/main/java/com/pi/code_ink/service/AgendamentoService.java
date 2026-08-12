@@ -36,7 +36,7 @@ public class AgendamentoService {
     public List<AgendamentoResponse> listarMeus(String email) {
         Usuario usuario = usuarioRepository.findByEmail(email)
                 .orElseThrow(()
-                        -> new NotFoundException("Usuario nao encontrado.")
+                        -> new NotFoundException("Usuário não encontrado.")
                 );
         return agendamentoRepository
                 .findByCliente(usuario.getNome())
@@ -49,8 +49,16 @@ public class AgendamentoService {
         throw new UnsupportedOperationException("Not implemented yet");
     }
 
-    public AgendamentoResponse criar(AgendamentoRequest request) {
+    public AgendamentoResponse criar(AgendamentoRequest request, String email) {
+        Usuario usuario = usuarioRepository.findByEmail(email)
+                .orElseThrow(()
+                        -> new NotFoundException("Usuario nao encontrado.")
+                );
+
         Agendamento agendamento = agendamentoMapper.toEntity(request);
+        agendamento.setCliente(usuario.getNome());
+        agendamento.setStatus("Pendente");
+
         Agendamento agendamentoSalvo = agendamentoRepository.save(agendamento);
         return agendamentoMapper.toResponse(agendamentoSalvo);
     }
