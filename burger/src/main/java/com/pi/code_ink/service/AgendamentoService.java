@@ -1,26 +1,30 @@
 // Estrutura gerada automaticamente a partir do contrato dos services do Angular.
 // Apenas esqueleto: sem regras de negocio, sem integracao com banco, sem validacoes.
-
 package com.pi.code_ink.service;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
 
 import com.pi.code_ink.dto.AgendamentoRequest;
 import com.pi.code_ink.dto.AgendamentoResponse;
 import com.pi.code_ink.dto.AtualizarStatusAgendamentoRequest;
 import com.pi.code_ink.entity.Agendamento;
+import com.pi.code_ink.entity.Usuario;
 import com.pi.code_ink.exception.NotFoundException;
 import com.pi.code_ink.mapper.AgendamentoMapper;
 import com.pi.code_ink.repository.AgendamentoRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
+import com.pi.code_ink.repository.UsuarioRepository;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class AgendamentoService {
 
     private final AgendamentoRepository agendamentoRepository;
+    private final UsuarioRepository usuarioRepository;
     private final AgendamentoMapper agendamentoMapper;
 
     public List<AgendamentoResponse> listarTodos() {
@@ -29,12 +33,32 @@ public class AgendamentoService {
                 .collect(Collectors.toList());
     }
 
+    public List<AgendamentoResponse> listarMeus(String email) {
+        Usuario usuario = usuarioRepository.findByEmail(email)
+                .orElseThrow(()
+                        -> new NotFoundException("Usuário não encontrado.")
+                );
+        return agendamentoRepository
+                .findByClienteId(usuario.getId())
+                .stream()
+                .map(agendamentoMapper::toResponse)
+                .collect(Collectors.toList());
+    }
+
     public AgendamentoResponse buscarPorId(Long id) {
         throw new UnsupportedOperationException("Not implemented yet");
     }
 
-    public AgendamentoResponse criar(AgendamentoRequest request) {
+    public AgendamentoResponse criar(AgendamentoRequest request, String email) {
+        Usuario usuario = usuarioRepository.findByEmail(email)
+                .orElseThrow(()
+                        -> new NotFoundException("Usuário não encontrado.")
+                );
+
         Agendamento agendamento = agendamentoMapper.toEntity(request);
+        agendamento.setCliente(usuario);
+        agendamento.setStatus("Pendente");
+
         Agendamento agendamentoSalvo = agendamentoRepository.save(agendamento);
         return agendamentoMapper.toResponse(agendamentoSalvo);
     }

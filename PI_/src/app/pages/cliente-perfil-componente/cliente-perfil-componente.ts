@@ -18,7 +18,7 @@ export class ClientePerfilComponente {
 
   protected readonly authService = inject(AuthService);
   private readonly agendamentosApi = toSignal(
-    this.agendamentoService.listarResumos(),
+    this.agendamentoService.listarMeusAgendamentos(),
     { initialValue: [] },
   );
   protected readonly agendamentos = computed(() =>

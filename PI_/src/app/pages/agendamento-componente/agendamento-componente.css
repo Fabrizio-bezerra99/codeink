@@ -3,7 +3,7 @@
 }
 .steps {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 0;
   margin: 0 0 3rem;
   padding: 0;
@@ -61,7 +61,8 @@
   gap: 1rem;
 }
 .option-grid button,
-.artist-options button {
+.artist-options button,
+.portfolio-card {
   border: 1px solid var(--border);
   background: transparent;
   color: var(--text-primary);
@@ -120,6 +121,53 @@
   color: #f5ce66;
   font-size: 0.75rem;
 }
+.portfolio-options {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+.portfolio-card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.portfolio-card.is-selected {
+  border-color: var(--text-primary);
+}
+.portfolio-card img {
+  width: 100%;
+}
+.portfolio-card__content {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+}
+.portfolio-card__content small,
+.field-help,
+.selected-file {
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+.reference-form {
+  display: grid;
+  gap: 0.65rem;
+}
+.reference-form label {
+  display: grid;
+  gap: 0.6rem;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+}
+.reference-form textarea {
+  width: 100%;
+  resize: vertical;
+}
+.field-help,
+.selected-file {
+  margin: 0;
+  font-size: 0.72rem;
+}
+.reference-preview { max-width: 100%; }
 .date-time-grid {
   display: grid;
   grid-template-columns: 1fr 1.3fr;
@@ -201,6 +249,7 @@
     display: none;
   }
   .option-grid,
+  .portfolio-options,
   .date-time-grid {
     grid-template-columns: 1fr;
   }
