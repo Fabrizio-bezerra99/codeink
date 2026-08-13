@@ -1,8 +1,10 @@
 package com.pi.code_ink.service;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -57,6 +59,7 @@ class AgendamentoServiceTest {
         request.setProjeto("Inspiração do portfólio");
 
         Usuario usuarioAutenticado = Usuario.builder()
+                .id(10L)
                 .nome("Fabrício")
                 .email("fabricio@exemplo.com")
                 .perfil(Role.CLIENTE)
@@ -76,7 +79,7 @@ class AgendamentoServiceTest {
         verify(agendamentoRepository).save(captor.capture());
 
         Agendamento agendamentoSalvo = captor.getValue();
-        assertEquals("Fabrício", agendamentoSalvo.getCliente());
+        assertSame(usuarioAutenticado, agendamentoSalvo.getCliente());
         assertEquals("Pendente", agendamentoSalvo.getStatus());
         assertEquals("Fabrício", response.getCliente());
         assertEquals("Pendente", response.getStatus());
@@ -84,10 +87,42 @@ class AgendamentoServiceTest {
     }
 
     @Test
+    void deveListarAgendamentosPeloIdDoUsuarioAutenticado() {
+        Usuario usuarioAutenticado = Usuario.builder()
+                .id(10L)
+                .nome("Alex")
+                .email("alex10@exemplo.com")
+                .perfil(Role.CLIENTE)
+                .build();
+        Agendamento agendamentoDoUsuario = Agendamento.builder()
+                .id(100L)
+                .cliente(usuarioAutenticado)
+                .status("Pendente")
+                .build();
+
+        when(usuarioRepository.findByEmail("alex10@exemplo.com"))
+                .thenReturn(Optional.of(usuarioAutenticado));
+        when(agendamentoRepository.findByClienteId(10L))
+                .thenReturn(List.of(agendamentoDoUsuario));
+
+        List<AgendamentoResponse> response =
+                agendamentoService.listarMeus("alex10@exemplo.com");
+
+        assertEquals(1, response.size());
+        assertEquals(100L, response.get(0).getId());
+        assertEquals("Alex", response.get(0).getCliente());
+        verify(agendamentoRepository).findByClienteId(10L);
+    }
+
+    @Test
     void deveAtualizarSomenteOStatusDoAgendamento() {
+        Usuario cliente = Usuario.builder()
+                .id(1L)
+                .nome("Joao Silva")
+                .build();
         Agendamento agendamento = Agendamento.builder()
                 .id(1L)
-                .cliente("Joao Silva")
+                .cliente(cliente)
                 .artista("Lucas Oliveira")
                 .data("30/08/2026")
                 .horario("15:00")

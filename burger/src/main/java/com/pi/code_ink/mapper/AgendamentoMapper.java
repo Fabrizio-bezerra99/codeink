@@ -15,7 +15,6 @@ public class AgendamentoMapper {
         String status = request.getStatus();
 
         return Agendamento.builder()
-                .cliente(request.getCliente())
                 .artista(request.getArtista())
                 .data(request.getData())
                 .horario(request.getHorario())
@@ -27,7 +26,7 @@ public class AgendamentoMapper {
     public AgendamentoResponse toResponse(Agendamento entity) {
         return AgendamentoResponse.builder()
                 .id(entity.getId())
-                .cliente(entity.getCliente())
+                .cliente(entity.getCliente() == null ? null : entity.getCliente().getNome())
                 .artista(entity.getArtista())
                 .data(entity.getData())
                 .horario(entity.getHorario())

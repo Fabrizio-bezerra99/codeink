@@ -39,7 +39,7 @@ public class AgendamentoService {
                         -> new NotFoundException("Usuário não encontrado.")
                 );
         return agendamentoRepository
-                .findByCliente(usuario.getNome())
+                .findByClienteId(usuario.getId())
                 .stream()
                 .map(agendamentoMapper::toResponse)
                 .collect(Collectors.toList());
@@ -52,11 +52,11 @@ public class AgendamentoService {
     public AgendamentoResponse criar(AgendamentoRequest request, String email) {
         Usuario usuario = usuarioRepository.findByEmail(email)
                 .orElseThrow(()
-                        -> new NotFoundException("Usuario nao encontrado.")
+                        -> new NotFoundException("Usuário não encontrado.")
                 );
 
         Agendamento agendamento = agendamentoMapper.toEntity(request);
-        agendamento.setCliente(usuario.getNome());
+        agendamento.setCliente(usuario);
         agendamento.setStatus("Pendente");
 
         Agendamento agendamentoSalvo = agendamentoRepository.save(agendamento);

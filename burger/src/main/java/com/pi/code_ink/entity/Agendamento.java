@@ -23,7 +23,10 @@ public class Agendamento {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String cliente;
+    @ManyToOne
+    @JoinColumn(name = "cliente_id")
+    private Usuario cliente;
+
     private String artista;
     private String data;
     private String horario;
