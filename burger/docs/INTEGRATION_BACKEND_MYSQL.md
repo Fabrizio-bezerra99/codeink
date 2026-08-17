@@ -1,26 +1,28 @@
 # Code Ink — Integração Backend Spring Boot + MySQL
 
+Atualizado em 17/08/2026 para refletir autenticação JWT, ownership por `cliente_id` e o fluxo real usado pelo frontend Angular.
+
 ## 1. Objetivo
 
-Este documento ensina a preparar o ambiente local, conectar o backend Spring Boot ao MySQL e testar o primeiro endpoint real de agendamentos.
+Este documento ensina a preparar o ambiente local, conectar o backend Spring Boot ao MySQL e verificar o fluxo integrado de usuários e agendamentos.
 
 ## 2. Estrutura local esperada
 
 ```text
-CODEINK/
-├── burger                         # backend Spring Boot
-└── PI_ ou ProjetoIntegrador       # frontend Angular
+codeink/
+├── burger/    # backend Spring Boot
+└── PI_/       # frontend Angular
 ```
 
-O backend e o frontend são projetos separados. O backend deste documento está em `burger`.
+Backend e frontend são módulos do mesmo repositório. O backend deste documento está em `burger/`.
 
 ## 3. Requisitos
 
 - Java JDK 21
-- Maven Wrapper do projeto (`mvnw.cmd`)
+- Maven Wrapper do projeto (`mvnw` ou `mvnw.cmd`)
 - MySQL Community Server 8.4 ou compatível
 - Git
-- Terminal do Windows, CMD ou PowerShell
+- terminal compatível com o sistema operacional
 - `curl`
 
 ## 4. Banco de dados MySQL
@@ -54,28 +56,42 @@ spring.datasource.password=${DB_PASSWORD}
 
 spring.jpa.hibernate.ddl-auto=update
 spring.jpa.show-sql=true
+
+app.jwt.secret=${JWT_SECRET}
+app.jwt.expiration-ms=${JWT_EXPIRATION_MS:3600000}
 ```
 
 - `DB_URL` tem como padrão a conexão local `jdbc:mysql://localhost:3306/code_ink`.
 - `DB_USERNAME` tem como padrão `code_ink_app`.
 - `DB_PASSWORD` deve ser definido no terminal antes de iniciar a aplicação.
+- `JWT_SECRET` deve ser definido com pelo menos 32 bytes.
+- `JWT_EXPIRATION_MS` tem como padrão `3600000` milissegundos.
 - A senha real não deve ser salva neste arquivo, no README, em documentação ou no Git.
 - `spring.jpa.hibernate.ddl-auto=update` permite que o Hibernate atualize o schema local conforme as entidades.
 
 ## 6. Como rodar o backend localmente
 
-No Windows CMD:
+Em Bash:
 
-```bat
-cd /d "C:\Users\fabri\OneDrive\Documentos\Projeto Integrador\CODEINK\burger"
+```bash
+cd burger
+export DB_USERNAME='<usuario-local>'
+export DB_PASSWORD='<senha-local>'
+export JWT_SECRET='<segredo-local-com-pelo-menos-32-bytes>'
+bash mvnw spring-boot:run
+```
 
-set "DB_USERNAME=code_ink_app"
-set "DB_PASSWORD=SUA_SENHA_REAL_AQUI"
+No PowerShell:
 
+```powershell
+Set-Location burger
+$env:DB_USERNAME = '<usuario-local>'
+$env:DB_PASSWORD = '<senha-local>'
+$env:JWT_SECRET = '<segredo-local-com-pelo-menos-32-bytes>'
 .\mvnw.cmd spring-boot:run
 ```
 
-Digite a senha real somente no terminal local. Não salve esse valor em arquivos nem faça commit dele.
+Substitua os placeholders somente no terminal local. Não salve valores reais em arquivos nem faça commit deles.
 
 ## 7. Como confirmar que o backend conectou no MySQL
 
@@ -90,109 +106,58 @@ Started ProjetoIntegradorApplication
 
 O nome exato de algumas mensagens pode variar conforme a versão do Spring Boot e do driver, mas devem aparecer a inicialização do pool, a URL JDBC, a porta 8080 e a mensagem de aplicação iniciada.
 
-## 8. Endpoint validado
+## 8. Fluxo validado
 
-Endpoint:
-
-```text
-GET http://localhost:8080/api/agendamentos
-```
-
-Teste:
-
-```bat
-curl -i http://localhost:8080/api/agendamentos
-```
-
-Quando não houver registros, a resposta esperada é HTTP 200 com uma lista vazia:
+Em 17/08/2026, o seguinte fluxo foi validado manualmente pela interface:
 
 ```text
-HTTP/1.1 200
-
-[]
+Angular
+  → cadastro/login de CLIENTE
+  → JWT no interceptor
+  → POST /api/agendamentos
+  → Spring resolve o usuário autenticado
+  → MySQL grava agendamentos.cliente_id
+  → GET /api/agendamentos/meus
+  → perfil Angular
 ```
 
-Com um registro de teste, a resposta esperada é semelhante a:
+Também foram confirmados:
 
-```json
-[
-  {
-    "id": 1,
-    "cliente": "João Silva",
-    "artista": "Lucas Oliveira",
-    "data": "25/08/2026",
-    "horario": "14:00",
-    "status": "Confirmado",
-    "projeto": "Inspiração do portfólio"
-  }
-]
-```
+- status inicial `Pendente` definido pelo backend;
+- `agendamentos.cliente_id = usuarios.id` do usuário autenticado;
+- exibição do registro em “Meus agendamentos”;
+- busca por ID do usuário, e não pelo nome enviado pelo navegador.
 
-## 9. Registro manual de teste
+Os endpoints de agendamento são protegidos. `GET /api/agendamentos` exige `ADMIN`; `POST /api/agendamentos` e `GET /api/agendamentos/meus` exigem `CLIENTE`.
 
-Confira primeiro a estrutura atual da tabela:
+## 9. Verificação segura no MySQL
+
+Depois de criar o agendamento pela aplicação, confira a estrutura da tabela:
 
 ```sql
 SHOW COLUMNS FROM agendamentos;
 ```
 
-Insira um registro de teste:
+Verifique somente o relacionamento, sem registrar nomes, emails ou credenciais no resultado:
 
 ```sql
-INSERT INTO agendamentos
-    (cliente, artista, `data`, horario, status, projeto)
-VALUES
-    (
-        'João Silva',
-        'Lucas Oliveira',
-        '25/08/2026',
-        '14:00',
-        'Confirmado',
-        'Inspiração do portfólio'
-    );
+SELECT
+    a.id AS agendamento_id,
+    a.status,
+    a.cliente_id,
+    u.id AS usuario_id
+FROM agendamentos AS a
+JOIN usuarios AS u ON u.id = a.cliente_id
+ORDER BY a.id DESC;
 ```
 
-Confira o resultado:
+O valor de `cliente_id` deve corresponder a `usuario_id`. Evite inserir o agendamento diretamente por SQL: a criação pela API é o que exercita autenticação, ownership, status inicial e persistência em conjunto.
 
-```sql
-SELECT * FROM agendamentos;
-```
+## 10. Próximos passos
 
-O campo `id` é gerado automaticamente pelo MySQL com `AUTO_INCREMENT`.
-
-## 10. Problemas encontrados e soluções
-
-| Problema | Causa | Solução |
-|---|---|---|
-| Java 8/JRE sem compilador `javac` | O ambiente não tinha um JDK compatível para compilar o projeto | Configuração do JDK 21 |
-| Construtor duplicado nos DTOs vazios com Lombok | Anotações de geração de construtor produziam assinaturas duplicadas | Remoção de `@AllArgsConstructor` dos DTOs `Request` vazios |
-| DataSource sem URL | O Spring Boot não tinha uma URL JDBC configurada | Configuração do datasource MySQL em `application.properties` |
-| Senha do usuário `code_ink_app` inválida | Credencial ou permissão do usuário de aplicação estava incorreta | Redefinição da senha e das permissões do usuário de aplicação |
-| `GET /api/agendamentos` retornando HTTP 500 `Not implemented yet` | O service ainda lançava `UnsupportedOperationException` | Implementação de `repository.findAll()` e do mapper de resposta |
-| Endpoint retornando somente `id` | A entidade e o response DTO continham apenas o identificador | Inclusão dos campos mínimos no `AgendamentoResponse` e na entidade `Agendamento` |
-
-## 11. Histórico de commits importantes
-
-Os commits relevantes encontrados no histórico local são:
-
-```text
-06e1351 feat: add agendamento response fields
-bfb386c feat: implement agendamentos listing
-a647ef1 chore: configure MySQL datasource
-5f0855d fix: remove duplicate constructors from empty DTOs
-```
-
-Para consultar o histórico mais recente:
-
-```bat
-git log --oneline -5
-```
-
-## 12. Próximos passos
-
-- Corrigir a URL do Angular de `/agendamentos` para `/api/agendamentos`.
-- Adaptar o `AgendamentoService` do Angular para consumir HTTP.
-- Decidir a transição entre mocks/localStorage e a API real.
-- Testar a chamada no navegador pela aba Network.
-- Criar o fluxo real de cadastro e listagem de agendamentos.
-- Revisar a diferença entre os status `Confirmado/Pendente/Finalizado/Cancelado` e `PENDENTE/CONFIRMADO/CONCLUIDO/CANCELADO`.
+- Formalizar as transições permitidas entre os status de agendamento.
+- Implementar validação de disponibilidade e conflito de horários.
+- Concluir ou remover `GET`, `PUT` e `DELETE` por ID ainda não implementados no service.
+- Criar um teste automatizado end-to-end envolvendo Angular, API e banco.
+- Substituir `ddl-auto=update` por migrations versionadas antes de produção.
+- Definir configurações e segredos próprios para cada ambiente.

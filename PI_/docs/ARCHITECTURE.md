@@ -1,17 +1,15 @@
 # Arquitetura do Code Ink
 
-Atualizado em 27/07/2026 com base exclusivamente no código deste repositório.
+Atualizado em 17/08/2026 com base no frontend Angular e no backend Spring Boot presentes neste repositório.
 
 ## Escopo confirmado
 
-O repositório contém um frontend Angular standalone. Não foram encontrados, nesta raiz, backend Spring Boot, banco de dados, migrations, contratos OpenAPI ou aplicativo Flutter.
+O Code Ink reúne dois módulos no mesmo repositório:
 
-A arquitetura operacional de hoje é uma aplicação cliente que combina:
+- `PI_/`: frontend Angular standalone;
+- `burger/`: backend Spring Boot conectado ao MySQL.
 
-- dados fixos de `catalogo.mock.ts`;
-- estado reativo nos componentes e em `AuthService`;
-- persistência no `localStorage` para sessão e agendamentos;
-- services HTTP tipados ainda não usados pelas páginas.
+A arquitetura operacional combina dados demonstrativos para o catálogo com integração real para autenticação e agendamentos. O frontend usa `sessionStorage` para manter o token e o usuário mínimo da sessão; usuários e agendamentos são persistidos pelo backend no MySQL.
 
 ## Visão geral
 
@@ -23,18 +21,20 @@ flowchart LR
     A --> L["SiteLayoutComponent"]
     L --> P["Pages"]
     P --> S["Services"]
-    S --> M["Mocks em memória"]
-    S --> LS["localStorage"]
-    S -. "scaffolding não consumido pelas páginas" .-> H["HttpClient"]
-    H -.-> API["API futura em localhost:8080"]
+    S --> M["Catálogo local"]
+    S --> H["HttpClient + interceptor JWT"]
+    H --> API["Spring Boot em localhost:8080"]
+    API --> SEC["Spring Security"]
+    API --> JPA["Services + repositories JPA"]
+    JPA --> DB["MySQL"]
 ```
 
-`provideHttpClient()` está registrado em `app.config.ts`, mas isso apenas disponibiliza o cliente HTTP. Não confirma a existência nem o funcionamento de uma API.
+`provideHttpClient(withInterceptors(...))` registra o cliente HTTP e o interceptor JWT. `provideAppInitializer()` restaura a sessão consultando `GET /api/auth/me` antes de concluir a inicialização.
 
 ## Inicialização
 
 1. `src/main.ts` chama `bootstrapApplication(App, appConfig)`.
-2. `src/app/app.config.ts` registra listeners globais de erro do navegador, `HttpClient` e o router.
+2. `src/app/app.config.ts` registra listeners globais de erro, inicialização da sessão, `HttpClient` com interceptor e router.
 3. `App` renderiza o `router-outlet` principal.
 4. Login e cadastro são exibidos fora do layout do site.
 5. As demais páginas são filhas de `SiteLayoutComponent`, que inclui navbar, conteúdo e footer.
@@ -43,25 +43,25 @@ Todos os componentes são standalone e usam `ChangeDetectionStrategy.OnPush`. As
 
 ## Rotas
 
-| Rota                      | Página                 | Acesso                  | Fonte principal de dados                 |
-| ------------------------- | ---------------------- | ----------------------- | ---------------------------------------- |
-| `/`                       | Home                   | público                 | `CatalogoService`                        |
-| `/home`                   | redireciona para `/`   | público                 | —                                        |
-| `/portfolio`              | Portfólio              | público                 | `CatalogoService`                        |
-| `/portfolio/:id`          | Detalhe da tattoo      | público                 | `CatalogoService`                        |
-| `/flash`                  | Flash tattoos          | público                 | `CatalogoService`                        |
-| `/tatuadores`             | Tatuadores             | público                 | `CatalogoService`                        |
-| `/tatuadores/:id`         | Perfil do tatuador     | público                 | `CatalogoService`                        |
-| `/agendamento`            | Novo agendamento       | público                 | catálogo + `AgendamentoService`          |
-| `/contato`                | Contato                | público                 | estado local do formulário               |
-| `/login`                  | Login                  | público, fora do layout | `AuthService`                            |
-| `/cadastro`               | Cadastro               | público, fora do layout | `AuthService`                            |
-| `/perfil`                 | Perfil do cliente      | `clienteGuard`          | autenticação + agendamentos locais       |
-| `/dashboard`              | Dashboard              | `adminGuard`            | agendamentos locais + indicadores mistos |
-| `/dashboard/agendamentos` | Gestão de agendamentos | `adminGuard`            | `AgendamentoService`                     |
-| `**`                      | Página 404             | público                 | —                                        |
+| Rota                      | Página                 | Acesso                            | Fonte principal de dados                 |
+| ------------------------- | ---------------------- | --------------------------------- | ---------------------------------------- |
+| `/`                       | Home                   | público                           | `CatalogoService`                        |
+| `/home`                   | redireciona para `/`   | público                           | —                                        |
+| `/portfolio`              | Portfólio              | público                           | `CatalogoService`                        |
+| `/portfolio/:id`          | Detalhe da tattoo      | público                           | `CatalogoService`                        |
+| `/flash`                  | Flash tattoos          | público                           | `CatalogoService`                        |
+| `/tatuadores`             | Tatuadores             | público                           | `CatalogoService`                        |
+| `/tatuadores/:id`         | Perfil do tatuador     | público                           | `CatalogoService`                        |
+| `/agendamento`            | Novo agendamento       | rota pública; API exige `CLIENTE` | catálogo + API de agendamentos           |
+| `/contato`                | Contato                | público                           | estado local do formulário               |
+| `/login`                  | Login                  | público, fora do layout           | `AuthService`                            |
+| `/cadastro`               | Cadastro               | público, fora do layout           | `AuthService`                            |
+| `/perfil`                 | Perfil do cliente      | `clienteGuard`                    | autenticação + `GET /meus`               |
+| `/dashboard`              | Dashboard              | `adminGuard`                      | API de agendamentos + indicadores mistos |
+| `/dashboard/agendamentos` | Gestão de agendamentos | `adminGuard`                      | listagem e status via API                |
+| `**`                      | Página 404             | público                           | —                                        |
 
-`clienteGuard` aceita perfis `cliente` e `admin`. `adminGuard` aceita somente `admin`. Ambos preservam a URL solicitada no parâmetro `redirect` ao enviar o usuário para o login.
+`clienteGuard` aceita somente `CLIENTE`. `adminGuard` aceita somente `ADMIN`. Ambos preservam a URL solicitada no parâmetro `redirect` ao enviar o usuário para o login.
 
 `authGuardGuard` e `tatuadorGuard` existem, mas não estão associados a rotas. Não existe área de tatuador implementada.
 
@@ -81,18 +81,18 @@ Os formulários de login, cadastro e contato usam Reactive Forms. Filtros e etap
 
 Um Service centraliza estado ou acesso a dados para que os componentes não precisem conhecer todos os detalhes de armazenamento.
 
-| Service              | Uso atual                                       | Estado                                              |
-| -------------------- | ----------------------------------------------- | --------------------------------------------------- |
-| `CatalogoService`    | artistas, trabalhos, flash tattoos e avaliações | ativo com mocks locais                              |
-| `AuthService`        | login, cadastro, logout e sessão                | ativo, simulado no navegador                        |
-| `AgendamentoService` | lista, criação local e alteração de status      | ativo localmente; também possui CRUD HTTP não usado |
-| `UsuarioService`     | CRUD HTTP                                       | scaffolding, sem consumidor nas páginas             |
-| `ClienteService`     | CRUD HTTP                                       | scaffolding, sem consumidor nas páginas             |
-| `TatuadorService`    | CRUD HTTP                                       | scaffolding, sem consumidor nas páginas             |
-| `TatuagemService`    | CRUD HTTP                                       | scaffolding, sem consumidor nas páginas             |
-| `PortifolioService`  | CRUD HTTP                                       | scaffolding, sem consumidor nas páginas             |
-| `PagamentoService`   | CRUD HTTP                                       | scaffolding, sem consumidor nas páginas             |
-| `AdminService`       | nenhuma operação                                | vazio e sem consumidor                              |
+| Service              | Uso atual                                         | Estado                                         |
+| -------------------- | ------------------------------------------------- | ---------------------------------------------- |
+| `CatalogoService`    | artistas, trabalhos, flash tattoos e avaliações   | ativo com dados locais                         |
+| `AuthService`        | login, cadastro, logout e sessão                  | integrado à API com JWT                        |
+| `AgendamentoService` | criação, listagem própria, administração e status | integrado à API; mantém métodos locais legados |
+| `UsuarioService`     | CRUD HTTP                                         | scaffolding, sem consumidor nas páginas        |
+| `ClienteService`     | CRUD HTTP                                         | scaffolding, sem consumidor nas páginas        |
+| `TatuadorService`    | CRUD HTTP                                         | scaffolding, sem consumidor nas páginas        |
+| `TatuagemService`    | CRUD HTTP                                         | scaffolding, sem consumidor nas páginas        |
+| `PortifolioService`  | CRUD HTTP                                         | scaffolding, sem consumidor nas páginas        |
+| `PagamentoService`   | CRUD HTTP                                         | scaffolding, sem consumidor nas páginas        |
+| `AdminService`       | nenhuma operação                                  | vazio e sem consumidor                         |
 
 `CatalogoService.listar()` lança `Method not implemented.` e não é chamado pelo código atual. Os métodos específicos (`listarArtistas`, `listarFlashTattoos` etc.) são os métodos em uso.
 
@@ -123,57 +123,81 @@ Portfólio e flash tattoos aplicam filtros locais. Detalhes de tattoo e perfil d
 
 A maioria das imagens do catálogo aponta para o Unsplash. Sem internet, a estrutura da aplicação continua disponível, mas essas imagens podem não aparecer.
 
-### Autenticação simulada
+### Autenticação real
 
 ```mermaid
 sequenceDiagram
     participant U as Usuário
-    participant P as Login/Cadastro
+    participant C as Cadastro
     participant A as AuthService
-    participant L as localStorage
+    participant B as Spring Boot
+    participant DB as MySQL
+    U->>C: envia formulário de cadastro
+    C->>A: cadastrar
+    A->>B: POST /api/auth/cadastro
+    B->>DB: cria usuário CLIENTE com senha BCrypt
+    B-->>A: dados seguros do cliente, sem JWT
+    A-->>C: cadastro concluído
+    C-->>U: encaminha para o login
+```
+
+O cadastro não inicia uma sessão automaticamente.
+
+```mermaid
+sequenceDiagram
+    participant U as Usuário
+    participant P as Login
+    participant A as AuthService
+    participant SS as sessionStorage
+    participant I as Interceptor
+    participant B as Spring Boot
+    participant DB as MySQL
     participant G as Guard
-    U->>P: envia formulário
-    P->>A: login ou cadastrar
-    A->>L: salva codeInk.usuario
-    A-->>P: retorna usuário simulado
+    U->>P: envia email e senha
+    P->>A: login
+    A->>B: POST /api/auth/login
+    B->>DB: valida usuário e senha BCrypt
+    B-->>A: JWT + usuário seguro
+    A->>SS: salva token e usuário mínimo
+    A->>I: GET /api/auth/me ao restaurar a sessão
+    I->>B: encaminha com Authorization: Bearer token
+    B-->>A: usuário autenticado confirmado
     P->>G: navega para rota protegida
     G->>A: consulta perfil atual
     G-->>U: libera ou redireciona
 ```
 
-Regras confirmadas do login:
+Regras confirmadas:
 
-- login e cadastro usam os endpoints reais do backend Spring Boot;
-- o backend devolve JWT e define o perfil; o frontend não deriva perfil a partir do email;
+- o cadastro público cria um `CLIENTE`, retorna dados sem senha e encaminha o usuário para o login sem salvar sessão;
+- o login devolve JWT e perfil; o frontend não deriva o perfil a partir do email;
 - o interceptor envia `Authorization: Bearer` para a API;
 - a sessão mínima fica no `sessionStorage` e é revalidada por `GET /api/auth/me`;
 - logout é local e remove o token e o usuário armazenados no navegador.
 
-Não há token, expiração, hash de senha ou validação de sessão por servidor. O interceptor de autenticação apenas encaminha a requisição e não está registrado.
+O JWT possui expiração configurável e é assinado com uma chave externa ao Git. O backend armazena a senha com BCrypt. O logout remove a sessão no navegador; ainda não há refresh token ou blacklist no servidor.
 
-### Agendamento local
+### Agendamento integrado
 
 ```mermaid
 flowchart TD
-    F["Agendamento em 4 etapas"] --> C["cadastrarResumo"]
-    C --> N["codeInk.agendamentos"]
-    C --> L["codeInk.ultimoAgendamento"]
-    N --> D["Dashboard e gestão administrativa"]
-    N --> P["Perfil filtra pelo nome do usuário"]
-    D --> U["atualizarStatusResumo"]
-    U --> N
+    F["Agendamento em etapas"] --> C["POST /api/agendamentos + JWT"]
+    C --> A["Spring identifica o usuário autenticado"]
+    A --> R["Agendamento.cliente = Usuario"]
+    R --> DB["MySQL: agendamentos.cliente_id"]
+    DB --> M["GET /api/agendamentos/meus"]
+    M --> P["Perfil do cliente"]
+    DB --> D["Dashboard administrativo"]
+    D --> U["PATCH /api/agendamentos/{id}/status"]
 ```
 
-O fluxo salva um resumo quando o usuário confirma data e horário. O nome vem da sessão atual; sem sessão, usa `Cliente`. A rota é pública e não há verificação de disponibilidade, integração com calendário, pagamento, upload ou envio ao estúdio.
+Quando o cliente confirma data e horário, o componente envia os detalhes à API. Embora o payload ainda possua o campo `cliente`, o backend não confia nesse valor: usa a identidade autenticada, associa a entidade `Usuario` e define o status inicial como `Pendente`.
 
-`AgendamentoService` combina:
+O fluxo foi validado manualmente em 17/08/2026 até o MySQL e de volta à página “Meus agendamentos”. A consulta do backend usa o ID do usuário, evitando colisões entre pessoas com o mesmo nome.
 
-- quatro agendamentos iniciais de `catalogo.mock.ts`;
-- registros criados ou sobrescritos em `codeInk.agendamentos`;
-- migração da chave antiga `codeInk.ultimoAgendamento` quando a lista nova ainda não existe;
-- métodos HTTP de CRUD que não são chamados pelas páginas atuais.
+O `AgendamentoService` ainda conserva métodos e chaves locais do protótipo anterior para compatibilidade e testes históricos. As páginas ativas de criação, perfil, dashboard e gestão usam os métodos HTTP.
 
-A gestão administrativa permite confirmar um agendamento pendente e cancelar um pendente ou confirmado. Cancelados e finalizados ficam bloqueados conforme as regras do template.
+A rota Angular de agendamento permanece pública. Sem um JWT de `CLIENTE`, porém, o `POST /api/agendamentos` é rejeitado pelo backend. Ainda não há verificação de disponibilidade, integração com calendário, pagamento ou persistência do arquivo de referência.
 
 ### Contato
 
@@ -187,27 +211,27 @@ Telefone, data de nascimento, quantidade de inspirações e avaliações exibido
 
 ### Dashboard
 
-Totais de agendamentos e clientes são calculados a partir da lista local. Os indicadores de tatuagens (`18`) e avaliações (`35`, média `4,8`) são fixos. Os atalhos de portfólio, tatuadores e flash abrem páginas públicas e não implementam edição.
+Totais de agendamentos e clientes são calculados a partir da lista retornada pela API. Os indicadores de tatuagens (`18`) e avaliações (`35`, média `4,8`) continuam fixos. Os atalhos de portfólio, tatuadores e flash abrem páginas públicas e não implementam edição.
 
-## Scaffolding de API
+## Integração e scaffolding de API
 
-Os endpoints codificados são:
+Os services ativos de autenticação e agendamento usam `environment.apiBaseUrl` e rotas sob `/api`. Em desenvolvimento, a URL base é `http://localhost:8080`.
 
-| Recurso      | URL                                  |
-| ------------ | ------------------------------------ |
-| Usuários     | `http://localhost:8080/usuarios`     |
-| Clientes     | `http://localhost:8080/clientes`     |
-| Tatuadores   | `http://localhost:8080/tatuadores`   |
-| Tatuagens    | `http://localhost:8080/tatuagens`    |
-| Portfólios   | `http://localhost:8080/portifolios`  |
-| Pagamentos   | `http://localhost:8080/pagamentos`   |
-| Agendamentos | `http://localhost:8080/agendamentos` |
+| Fluxo ativo           | Endpoint principal                    | Estado                                  |
+| --------------------- | ------------------------------------- | --------------------------------------- |
+| cadastro              | `POST /api/auth/cadastro`             | integrado                               |
+| login                 | `POST /api/auth/login`                | integrado                               |
+| restauração de sessão | `GET /api/auth/me`                    | integrado                               |
+| novo agendamento      | `POST /api/agendamentos`              | integrado para `CLIENTE`                |
+| meus agendamentos     | `GET /api/agendamentos/meus`          | integrado e consultado por `cliente_id` |
+| administração         | `GET /api/agendamentos`               | integrado para `ADMIN`                  |
+| alteração de status   | `PATCH /api/agendamentos/{id}/status` | integrado para `ADMIN`                  |
 
-Essas URLs estão repetidas diretamente nos services; não existe configuração por ambiente.
+Os services Angular de usuários, clientes, tatuadores, tatuagens, portfólios e pagamentos conservam URLs fixas e não são consumidos pelas páginas atuais. Os controllers equivalentes existem no backend, mas seus services ainda possuem operações não implementadas. Eles são scaffolding, não funcionalidades disponíveis.
 
-## Fluxo futuro de API
+## Evolução futura da integração
 
-O desenho abaixo é uma direção sugerida, não uma funcionalidade existente:
+O desenho abaixo representa a direção para migrar os catálogos locais quando os respectivos serviços estiverem prontos:
 
 ```mermaid
 flowchart LR
@@ -218,27 +242,25 @@ flowchart LR
     B --> DB["Banco de dados"]
 ```
 
-TODO antes da integração:
+TODO para ampliar a integração:
 
-- confirmar onde está o backend e quais endpoints realmente existem;
 - publicar ou versionar o contrato da API;
 - definir DTOs e conversão para os models de apresentação;
-- configurar URLs por ambiente;
-- decidir autenticação e implementar o interceptor somente depois disso;
+- substituir as URLs fixas dos services legados por configuração de ambiente;
 - definir tratamento de loading, erro e indisponibilidade;
-- confirmar CORS e persistência do banco;
-- substituir mocks de forma incremental, com testes por fluxo.
+- implementar e autorizar corretamente cada CRUD do backend;
+- substituir os dados locais de forma incremental, com testes por fluxo.
+
+Antes de expandir o catálogo remoto, é necessário corrigir a autorização de escrita em `/api/tatuadores/**`. A explicação detalhada está em [`../../burger/docs/AUTHENTICATION.md`](../../burger/docs/AUTHENTICATION.md).
 
 ## Testes e garantias atuais
 
-Em 29/07/2026 foram executados com sucesso o build de produção, `ngc --noEmit` e os testes automatizados.
+Em 17/08/2026, a suíte completa e o build de produção foram confirmados com sucesso:
 
-Existem cinco arquivos de teste, totalizando quatorze testes aprovados:
+- 10 arquivos de teste;
+- 34/34 testes aprovados;
+- build Angular de produção concluído.
 
-- criação do shell `App` e presença de `router-outlet`;
-- criação de `NavbarComponent`;
-- regras locais do `AgendamentoService`, incluindo listagem, cadastro, persistência, atualização de status, deduplicação, chave legada e JSON inválido.
-- alternância da visibilidade da senha e atributos acessíveis no `LoginComponente`;
-- alternância da visibilidade da senha e atributos acessíveis no `CadastroComponente`.
+A cobertura inclui shell e navbar, `AuthService`, interceptor JWT, guards de `CLIENTE`, `ADMIN` e `TATUADOR`, chamadas HTTP de agendamentos, regras locais legadas, seleção de projeto no formulário, controles de senha, autocomplete do cadastro e atualização administrativa de status.
 
-Ainda não há evidência automatizada de acessibilidade geral, responsividade, autenticação completa, validações de formulários, guards, filtros, integração entre rotas ou fluxos completos. Os controles de senha dos formulários já possuem cobertura específica. A persistência local de agendamentos também possui cobertura no `AgendamentoService`. A marcação possui elementos semânticos, atributos ARIA pontuais e media queries, mas conformidade WCAG/AXE não foi medida.
+O fluxo Angular → JWT → Spring Boot → MySQL → `cliente_id` → `/meus` → Angular foi validado manualmente. Ainda não existe um teste automatizado end-to-end que levante os três componentes juntos. Também não há auditoria automatizada de acessibilidade ou evidência de conformidade WCAG/AXE.

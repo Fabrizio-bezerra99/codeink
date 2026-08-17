@@ -2,6 +2,8 @@
 
 Este documento preserva o contexto da migração que originou a interface atual. O estado operacional deve ser consultado no `README.md` e em `docs/ARCHITECTURE.md`.
 
+As seções abaixo registram o snapshot validado em 27/07/2026 e não descrevem todas as integrações adicionadas posteriormente.
+
 ## Origem registrada
 
 O registro anterior informa que um protótipo chamado **Prototipar site com imagem**, produzido em React/TSX com Tailwind e bibliotecas externas, foi reescrito para o projeto Angular.
@@ -10,7 +12,7 @@ O protótipo original não está neste repositório. Portanto, a equivalência c
 
 TODO: adicionar link ou referência versionada ao arquivo de design/protótipo, se o grupo quiser manter rastreabilidade da conversão.
 
-## Resultado confirmado no repositório atual
+## Resultado confirmado no snapshot de 27/07/2026
 
 - aplicação Angular standalone;
 - páginas carregadas sob demanda com `loadComponent`;
@@ -60,7 +62,7 @@ A página de gestão administrativa e a persistência mais completa de agendamen
 - A existência de markup semântico e atributos ARIA não comprova conformidade integral de acessibilidade.
 - “Conversão completa” deve ser entendida como histórico informado, não como comparação validada nesta auditoria.
 
-## Validação atual
+## Validação do snapshot
 
 Executado em 27/07/2026:
 
