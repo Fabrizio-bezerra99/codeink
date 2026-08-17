@@ -1,12 +1,12 @@
 # Code Ink — Contexto do projeto
 
-Atualizado em 27/07/2026 com base no estado atual do repositório.
+Atualizado em 17/08/2026 com base no frontend Angular e no backend Spring Boot do repositório `Fabrizio-bezerra99/codeink`.
 
 ## Visão geral
 
-Code Ink é um projeto acadêmico que representa a experiência digital de um estúdio de tatuagem. O código disponível implementa somente o frontend web em Angular.
+Code Ink é um projeto acadêmico Full Stack que representa a experiência digital de um estúdio de tatuagem. O mesmo repositório contém o frontend web em Angular e o backend em Spring Boot.
 
-O sistema atual permite explorar um catálogo demonstrativo, simular autenticação, criar um resumo local de agendamento e alterar seu status em uma área administrativa. Os dados não são enviados a um servidor.
+O sistema atual permite explorar um catálogo demonstrativo, autenticar usuários, criar agendamentos persistidos no MySQL, consultar os agendamentos do cliente autenticado e alterar status em uma área administrativa. Catálogo, contato e outras áreas visuais ainda possuem dados ou comportamentos locais.
 
 ## Fonte da verdade
 
@@ -23,27 +23,28 @@ Não se deve inferir backend, banco, aplicativo mobile ou regras de negócio ape
 
 ### Disponível neste repositório
 
-- aplicação Angular standalone;
+- aplicação Angular standalone em `PI_/`;
+- API Spring Boot em `burger/`;
 - TypeScript, HTML5 e CSS3;
 - rotas públicas e protegidas;
 - componentes compartilhados;
 - Reactive Forms;
 - signals e estado derivado;
 - mocks de catálogo;
-- sessão e agendamentos no `localStorage`;
-- services HTTP tipados para uma API futura;
-- dois testes básicos de componentes.
+- sessão mínima no `sessionStorage`;
+- autenticação JWT e senhas com BCrypt;
+- usuários e agendamentos persistidos em MySQL;
+- relação JPA entre `Agendamento` e `Usuario` por `cliente_id`;
+- services HTTP ativos para autenticação e agendamentos;
+- testes automatizados no frontend e backend.
 
 ### Não encontrado neste repositório
 
-- backend Java/Spring Boot;
-- banco de dados ou scripts SQL;
-- migrations;
 - documentação OpenAPI/Swagger;
 - aplicativo Flutter/Dart;
 - infraestrutura de deploy;
 - pipeline de CI;
-- autenticação real ou emissão de token.
+- migrations versionadas para produção.
 
 ## Objetivos e estado atual
 
@@ -53,18 +54,18 @@ Não se deve inferir backend, banco, aplicativo mobile ou regras de negócio ape
 | exibir portfólio                | implementado com mock, busca e filtro                 |
 | exibir flash tattoos            | implementado com mock e filtro                        |
 | apresentar tatuadores           | implementado com mock                                 |
-| autenticar usuários             | simulado no navegador                                 |
-| cadastrar clientes              | simulado; apenas nome e email chegam ao service local |
-| solicitar agendamento           | simulado e persistido no navegador                    |
-| gerenciar status de agendamento | implementado localmente para administrador            |
-| mostrar perfil do cliente       | implementado com sessão, mocks e valores fixos        |
+| autenticar usuários             | integrado ao backend com JWT                          |
+| cadastrar clientes              | integrado ao backend; cadastro público cria `CLIENTE` |
+| solicitar agendamento           | integrado e persistido no MySQL                       |
+| gerenciar status de agendamento | integrado à API para `ADMIN`                          |
+| mostrar perfil do cliente       | sessão real, `/meus` e alguns valores visuais fixos   |
 | enviar contato                  | somente validação e confirmação visual                |
 | gerenciar portfólio             | não implementado                                      |
 | gerenciar tatuadores            | não implementado                                      |
 | gerenciar flash tattoos         | não implementado                                      |
 | processar pagamentos            | não implementado; há somente model e service HTTP     |
-| integrar API                    | não implementado nas páginas                          |
-| persistir em banco              | não implementado nesta raiz                           |
+| integrar API                    | autenticação e agendamentos integrados                |
+| persistir em banco              | usuários e agendamentos persistidos em MySQL          |
 | oferecer aplicativo mobile      | não implementado nesta raiz                           |
 
 ## Usuários demonstrativos
@@ -78,7 +79,7 @@ Não se deve inferir backend, banco, aplicativo mobile ou regras de negócio ape
 - `CLIENTE` acessa `/perfil` e cria agendamentos autenticados;
 - `TATUADOR` possui guard e pode autenticar, mas a área específica ainda não está implementada.
 
-Não há credenciais de demonstração versionadas. Contas `ADMIN` e `TATUADOR` devem ser provisionadas fora do cadastro público.
+Não há senhas, tokens ou segredos de demonstração versionados. Os identificadores de contas locais fictícias estão documentados sem suas senhas; contas `ADMIN` e `TATUADOR` devem ser provisionadas fora do cadastro público.
 
 ## Dados e persistência
 
@@ -94,16 +95,16 @@ Não há credenciais de demonstração versionadas. Contas `ADMIN` e `TATUADOR` 
 
 Os nomes, avaliações, preços, contatos e demais conteúdos devem ser tratados como dados de demonstração.
 
-### Armazenamento do navegador
+### Navegador e banco
 
-| Chave                       | Conteúdo                                                 |
-| --------------------------- | -------------------------------------------------------- |
-| `codeInk.accessToken`       | token JWT da sessão atual                                |
-| `codeInk.usuario`           | usuário mínimo da sessão atual                           |
-| `codeInk.agendamentos`      | lista de agendamentos criados ou sobrescritos localmente |
-| `codeInk.ultimoAgendamento` | resumo legado mantido por compatibilidade                |
+| Local                | Conteúdo                                              |
+| -------------------- | ----------------------------------------------------- |
+| `sessionStorage`     | `codeInk.accessToken` e `codeInk.usuario` da sessão   |
+| `localStorage`       | chaves legadas de agendamento mantidas no service     |
+| MySQL `usuarios`     | identidade, perfil, contato e hash BCrypt             |
+| MySQL `agendamentos` | dados do agendamento e chave estrangeira `cliente_id` |
 
-Limpar os dados do site no navegador remove essa persistência. Não existe sincronização entre dispositivos ou usuários.
+Limpar os dados do site encerra a sessão local, mas não apaga usuários ou agendamentos do MySQL. As páginas ativas de agendamento não usam o `localStorage` como fonte principal.
 
 ## Domínio modelado no frontend
 
@@ -130,7 +131,7 @@ Tatuador ---/       |
 Tatuador -> Portfolio -> Tatuagem opcional
 ```
 
-Esses tipos não comprovam tabelas, chaves estrangeiras ou entidades de backend.
+No backend, `Usuario` e `Agendamento` são entidades JPA confirmadas. `Agendamento.cliente` usa `@ManyToOne` e `@JoinColumn(name = "cliente_id")`. As outras entidades e seus controllers não comprovam CRUDs funcionais, pois vários services ainda não estão implementados.
 
 ## Tecnologias confirmadas
 
@@ -151,6 +152,17 @@ Esses tipos não comprovam tabelas, chaves estrangeiras ou entidades de backend.
 - Prettier;
 - Git.
 
+### Backend e banco
+
+- Java 21;
+- Spring Boot 4.1;
+- Spring Security;
+- Spring Data JPA;
+- JJWT;
+- BCrypt;
+- MySQL;
+- H2 nos testes.
+
 ### Ferramentas configuradas
 
 - extensão Angular recomendada para VS Code;
@@ -164,13 +176,11 @@ TODO: manter links ou arquivos de design no repositório de documentação se o 
 
 ## Repositório
 
-Remoto confirmado em 27/07/2026:
+Remoto confirmado em 17/08/2026:
 
 ```text
-https://github.com/Fabrizio-bezerra99/ProjetoIntegradorGrupo.git
+https://github.com/Fabrizio-bezerra99/codeink.git
 ```
-
-O identificador antigo `Fabrizio-bezerra99/PI-code-ink` não corresponde ao remoto atual.
 
 ## Conteúdo institucional
 
@@ -184,44 +194,49 @@ TODO antes de publicar:
 - revisar preços e datas demonstrativas;
 - definir política de privacidade e tratamento de dados, se o sistema coletar informações reais.
 
-## Arquitetura pretendida para integração
+## Arquitetura integrada
 
-O código sugere uma futura comunicação HTTP:
+Autenticação e agendamentos seguem atualmente este caminho:
 
 ```text
 Components/Pages
       -> Services
-          -> HttpClient
-              -> API em localhost:8080
+          -> HttpClient + JWT
+              -> Spring Boot / Spring Security
+                  -> Services e repositories JPA
+                      -> MySQL
 ```
 
-O backend e o banco não estão disponíveis nesta raiz. Portanto, a arquitetura abaixo é somente um TODO de integração, não uma descrição de algo existente:
+O trust boundary, ou fronteira de confiança, fica no backend. Os guards do Angular orientam a interface, mas somente o Spring Security e as regras dos services podem autorizar uma operação ou definir o proprietário de um registro.
 
-```text
-Frontend Angular
-      -> API REST a confirmar
-          -> regras de negócio a confirmar
-              -> persistência a confirmar
-```
+No agendamento, o servidor obtém o email autenticado, resolve `Usuario`, grava `agendamentos.cliente_id` e lista os registros por esse ID. O nome recebido no payload não é usado como prova de identidade.
 
-TODO:
+Para os catálogos e CRUDs ainda incompletos, permanecem como próximos passos:
 
-- localizar ou criar o repositório oficial do backend;
-- confirmar stack, banco e arquitetura em camadas pelo código do backend;
-- definir DTOs, endpoints e códigos HTTP;
-- definir autenticação e autorização;
-- documentar CORS e ambientes;
+- corrigir a autorização de escrita em `/api/tatuadores/**`;
+- concluir services e regras de negócio antes de conectar novas telas;
+- alinhar os services Angular legados às rotas `/api` e aos arquivos de ambiente;
 - criar contrato versionado da API;
+- adotar migrations antes de um ambiente de produção;
 - decidir se o aplicativo Flutter permanece no escopo.
+
+## Limitações atuais relevantes
+
+- o catálogo público permanece local e não comprova um CRUD de tatuadores ou portfólio;
+- há uma pendência conhecida de autorização em operações de escrita de `/api/tatuadores/**`;
+- diversos controllers chamam services ainda não implementados;
+- a rota Angular `/agendamento` é pública, mas a criação no backend requer `CLIENTE` autenticado;
+- não há recuperação de senha, refresh token, pagamento ou upload persistente;
+- os indicadores de tatuagens e avaliações do dashboard são demonstrativos.
 
 ## Requisitos ainda não documentados
 
-Não há documentação aprovada de requisitos funcionais, requisitos não funcionais, regras de negócio, casos de uso ou critérios de aceite.
+Não há um documento formal e aprovado de requisitos funcionais, requisitos não funcionais, casos de uso ou critérios de aceite. Parte das regras já está expressa no código e nos testes, mas ainda precisa ser consolidada como especificação de produto.
 
 TODO com o grupo:
 
-1. definir quem pode criar e alterar agendamentos;
-2. definir estados e transições oficiais do agendamento;
+1. formalizar que `CLIENTE` cria e consulta os próprios agendamentos e `ADMIN` gerencia status;
+2. definir todas as transições oficiais do agendamento;
 3. definir disponibilidade, duração e conflitos de horário;
 4. definir regras de preço, sinal, cancelamento e reembolso;
 5. definir cadastro e aprovação de tatuadores;
@@ -239,9 +254,10 @@ TODO: registrar responsáveis atuais por frontend, backend, banco, mobile, desig
 
 ## Documentos relacionados
 
-- `README.md`: entrada rápida e execução;
+- `../README.md`: entrada do frontend e execução;
+- `../../README.md`: visão Full Stack do repositório;
 - `docs/ARCHITECTURE.md`: estrutura e fluxos técnicos;
-- `docs/CODEBASE_ANALYSIS.md`: auditoria, inconsistências e arquivos candidatos;
+- `docs/CODEBASE_ANALYSIS.md`: auditoria histórica de 29/07/2026;
 - `docs/ROADMAP.md`: prioridades futuras;
 - `docs/LEARNING_LOG.md`: histórico das sessões;
 - `REFATORACAO.md`: histórico do protótipo visual.

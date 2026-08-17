@@ -1,18 +1,18 @@
 # Code Ink
 
-Frontend acadêmico para apresentação e gerenciamento demonstrativo de um estúdio de tatuagem. O repositório contém uma aplicação Angular standalone; o backend Spring Boot fica no repositório separado `burger`.
+Frontend Angular do Code Ink, uma aplicação acadêmica Full Stack para apresentação e gerenciamento de um estúdio de tatuagem. O backend Spring Boot está na pasta irmã [`../burger`](../burger) do mesmo repositório.
 
-> Estado atual: o login, cadastro e restauração de sessão usam a API Spring Boot real. O token e o usuário mínimo ficam em `sessionStorage`; o catálogo continua com dados mockados e o agendamento mantém o fluxo visual existente.
+> Estado atual: login, cadastro, restauração de sessão e o fluxo principal de agendamentos usam a API Spring Boot real. O token e o usuário mínimo ficam em `sessionStorage`; as páginas públicas de catálogo continuam usando dados locais.
 
 ## Funcionalidades implementadas
 
 - Home, portfólio com busca e filtro, detalhes de trabalho e catálogo de flash tattoos.
 - Lista e perfil de tatuadores com dados mockados.
-- Login, cadastro e logout local integrados a `/api/auth` com JWT.
+- Login e cadastro integrados a `/api/auth`, logout local e sessão com JWT.
 - Perfil do cliente protegido por guard de rota.
-- Fluxo demonstrativo de agendamento em quatro etapas.
-- Persistência local dos agendamentos criados e de mudanças de status.
-- Dashboard e gestão de agendamentos protegidos para o perfil administrador.
+- Fluxo de agendamento em etapas com seleção de trabalho do portfólio ou referência.
+- Criação e consulta de agendamentos reais associados ao cliente autenticado.
+- Dashboard e gestão de status via API protegidos para o perfil administrador.
 - Formulário de contato validado, com confirmação apenas visual.
 - Layout responsivo, componentes reutilizáveis e rotas carregadas sob demanda.
 
@@ -20,10 +20,11 @@ Frontend acadêmico para apresentação e gerenciamento demonstrativo de um est�
 
 - Não há envio de contato, pagamento ou recuperação de senha.
 - A autorização real é aplicada pelo backend; os guards Angular melhoram a navegação, mas não substituem a validação do token no servidor.
+- A rota visual `/agendamento` é pública, mas a API aceita a criação somente para um `CLIENTE` autenticado.
 - Favoritos, inspirações, recuperação de senha, edição de perfil e configurações aparecem na interface, mas não possuem fluxo funcional completo.
 - Os links de “gerenciar” portfólio, tatuadores e flash tattoos levam às páginas públicas; não há CRUD administrativo dessas áreas.
-- A escolha “portfólio” no agendamento registra apenas o tipo de projeto; não existe seleção de um trabalho específico nem upload de referência.
-- As imagens do catálogo são carregadas do Unsplash e dependem de conexão com a internet. A imagem principal do estúdio é local.
+- O agendamento permite selecionar um trabalho ou visualizar uma referência local, mas o arquivo de referência não é enviado nem persistido no backend.
+- Parte das imagens do catálogo, especialmente as relacionadas aos artistas, é carregada do Unsplash e depende de conexão. A imagem principal e os trabalhos do portfólio são assets locais.
 
 ## Tecnologias
 
@@ -64,26 +65,28 @@ npm run build
 npm test -- --watch=false
 ```
 
-Validações mais recentes realizadas em 30/07/2026:
+Validações mais recentes confirmadas em 17/08/2026:
 
-- build de produção concluído;
-- verificação do compilador Angular com `ngc --noEmit` concluída;
-- 5 arquivos de teste e 16 testes aprovados.
+- build de produção concluído com sucesso;
+- 10 arquivos de teste aprovados;
+- 34/34 testes aprovados.
 
-Os testes atuais cobrem a criação do componente raiz, a navbar, as regras locais do `AgendamentoService`, os controles de senha e a sincronização do preenchimento automático no cadastro. Ainda não validam os fluxos completos de autenticação, filtros, guards ou a integração entre agendamento, perfil e administração.
+Os testes atuais cobrem o shell e a navbar, autenticação, guards por perfil, interceptor JWT, chamadas HTTP de agendamento, regras locais legadas, seleção do projeto, controles de senha, preenchimento automático no cadastro e atualização administrativa de status. O fluxo completo Angular → API → MySQL foi validado manualmente, não por um único teste automatizado end-to-end.
 
 ## Autenticação
 
 O cadastro público cria somente clientes por `POST /api/auth/cadastro`. O login usa `POST /api/auth/login`, e a restauração consulta `GET /api/auth/me`. A chave `JWT_SECRET` é configurada somente no ambiente do backend; não há credenciais de demonstração versionadas.
 
-O token e o usuário mínimo da sessão usam `sessionStorage`. Os agendamentos ainda mantêm as chaves locais existentes para compatibilidade com o fluxo visual do MVP.
+O token e o usuário mínimo da sessão usam `sessionStorage`. O interceptor adiciona o Bearer token às chamadas protegidas da API e trata respostas `401`. A sessão é restaurada consultando o backend, que permanece como fonte de autoridade.
+
+Na criação de um agendamento, o backend ignora o nome do cliente recebido como fonte de ownership, obtém o usuário pelo JWT e grava a relação por `cliente_id`. A página de perfil consulta `GET /api/agendamentos/meus`, cuja busca é baseada no ID do usuário autenticado.
 
 ## Organização
 
 ```text
 src/app/
   core/
-    data/       # mocks do catálogo e agendamentos iniciais
+    data/       # dados demonstrativos do catálogo e estruturas legadas
     guards/     # autorização de rotas por perfil
     services/   # estado local e scaffolding HTTP
   models/       # models de domínio e interfaces da camada visual
@@ -91,22 +94,36 @@ src/app/
   shared/       # layout, navegação, rodapé, cabeçalhos e cards
 ```
 
-Fluxo atual de dados:
+Fluxos atuais de dados:
 
 ```text
-Pages/Components -> Services -> mocks e estado local de agendamentos
-                              -> HttpClient -> API Spring Boot real
+Pages/Components -> CatalogoService -> dados locais do catálogo
+                 -> AuthService/AgendamentoService
+                    -> HttpClient + JWT
+                       -> Spring Boot -> JPA -> MySQL
 ```
 
 ## Documentação
 
 - [`docs/PROJECT_CONTEXT.md`](docs/PROJECT_CONTEXT.md): objetivo e limites confirmados do projeto.
 - [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md): arquitetura e fluxos atuais.
-- [`docs/CODEBASE_ANALYSIS.md`](docs/CODEBASE_ANALYSIS.md): auditoria técnica e inconsistências.
+- [`docs/CODEBASE_ANALYSIS.md`](docs/CODEBASE_ANALYSIS.md): auditoria histórica de 29/07/2026.
 - [`docs/ROADMAP.md`](docs/ROADMAP.md): próximos passos documentais e técnicos.
 - [`docs/LEARNING_LOG.md`](docs/LEARNING_LOG.md): histórico de aprendizado.
-- [`REFATORACAO.md`](REFATORACAO.md): registro da migração do protótipo visual.
+- [`REFATORACAO.md`](REFATORACAO.md): registro histórico da migração do protótipo visual.
 
 ## API integrada
 
-Há services tipados apontando para `http://localhost:8080`, e o `AuthService`, o interceptor e o fluxo de agendamento usam `HttpClient`. O contrato de autenticação está implementado no backend `burger`; a URL de produção ainda precisa ser definida.
+O `AuthService`, o interceptor e as telas ativas de agendamento usam `HttpClient` com a URL configurada nos arquivos de ambiente. Em desenvolvimento, a API fica em `http://localhost:8080`.
+
+Fluxos integrados atualmente:
+
+- `POST /api/auth/cadastro`;
+- `POST /api/auth/login`;
+- `GET /api/auth/me`;
+- `POST /api/agendamentos`;
+- `GET /api/agendamentos/meus`;
+- `GET /api/agendamentos` para administração;
+- `PATCH /api/agendamentos/{id}/status` para administração.
+
+O `TatuadorService` e outros services de domínio ainda representam scaffolding de CRUD e não são usados pelo catálogo público. A URL de produção ainda precisa ser definida.

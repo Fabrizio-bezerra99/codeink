@@ -1,157 +1,141 @@
 # Roadmap — Code Ink
 
-Atualizado em 27/07/2026. Este roadmap deriva das lacunas confirmadas no código atual; não representa compromisso de prazo.
+Atualizado em 17/08/2026. Este roadmap deriva do estado confirmado no código, nos testes e na validação manual Full Stack; não representa compromisso de prazo.
 
 ## Base atual
 
 - [x] frontend Angular standalone estruturado;
-- [x] páginas públicas e layout responsivo;
-- [x] catálogo local de portfólio, flash tattoos e artistas;
-- [x] autenticação demonstrativa no navegador;
-- [x] fluxo local de agendamento;
-- [x] guards de cliente e administrador;
-- [x] dashboard e gestão local de status;
-- [x] build de produção aprovado;
-- [x] documentação de estado e arquitetura atualizada;
-- [ ] integração com backend;
-- [ ] banco de dados;
-- [ ] autenticação real;
-- [ ] aplicativo mobile;
-- [ ] cobertura de testes dos fluxos principais.
+- [x] frontend Angular e backend Spring Boot no mesmo repositório, integrados a um banco MySQL externo;
+- [x] páginas públicas e catálogo visual local;
+- [x] cadastro e login reais com JWT e BCrypt;
+- [x] interceptor e guards por perfil no Angular;
+- [x] autorização por roles no Spring Security para os fluxos principais;
+- [x] criação de agendamento vinculada ao usuário autenticado;
+- [x] relacionamento JPA por `agendamentos.cliente_id`;
+- [x] consulta de “Meus agendamentos” pelo ID do cliente;
+- [x] dashboard e atualização administrativa de status via API;
+- [x] 34 testes frontend e 25 testes backend aprovados;
+- [x] builds de produção confirmados em 17/08/2026;
+- [ ] CRUD completo de tatuadores e catálogos;
+- [ ] recuperação de senha e refresh token;
+- [ ] migrations e configuração de produção;
+- [ ] cobertura end-to-end automatizada.
 
-Os itens marcados como concluídos descrevem somente o frontend e o comportamento local existentes. Eles não significam que o produto Full Stack está pronto.
+Os itens concluídos descrevem o MVP atual. Eles não significam que todas as áreas visíveis ou todos os controllers estejam completos.
 
-## Prioridade 0 — decisões antes de implementar
+## Prioridade 0 — autorização e fronteira de confiança
 
-### Requisitos e escopo
+- [ ] corrigir a regra de escrita em `/api/tatuadores/**`, hoje acessível a qualquer usuário autenticado;
+- [ ] definir explicitamente quais perfis podem criar, alterar e excluir tatuadores;
+- [ ] adicionar testes de segurança que rejeitem `CLIENTE` nessas operações;
+- [ ] revisar os demais matchers do `SecurityConfig` antes de ativar novos CRUDs;
+- [ ] manter ownership de agendamentos exclusivamente no backend;
+- [ ] decidir se a rota Angular `/agendamento` deve receber um guard de `CLIENTE` ou redirecionar no momento do envio.
 
-- [ ] confirmar os perfis definitivos: cliente, administrador e tatuador;
-- [ ] definir requisitos funcionais e critérios de aceite;
-- [ ] confirmar estados e transições de agendamento;
-- [ ] definir regras de disponibilidade, conflito, cancelamento e pagamento;
-- [ ] decidir quais botões visuais permanecerão no produto;
-- [ ] confirmar se Flutter continua no escopo.
+Essa prioridade deve ser tratada antes de apresentar `/api/tatuadores/**` como CRUD funcional.
 
-### Dados e identidade do projeto
+## Prioridade 1 — consolidar os fluxos integrados
 
-- [ ] validar telefone, email, endereço, horários e redes sociais;
-- [ ] confirmar direitos e origem das imagens;
-- [ ] decidir se nomes, preços, avaliações e datas dos mocks serão mantidos;
-- [ ] registrar a divisão atual da equipe.
+### Agendamentos
 
-### Higiene do repositório
+- [x] criar agendamento pela API;
+- [x] forçar status inicial `Pendente` no backend;
+- [x] associar o registro ao `Usuario` autenticado;
+- [x] consultar os próprios registros por `cliente_id`;
+- [x] listar registros para `ADMIN`;
+- [x] atualizar status pela API;
+- [ ] formalizar estados e transições permitidas no backend;
+- [ ] implementar disponibilidade e detecção de conflito de horário;
+- [ ] concluir ou remover as operações por ID ainda não implementadas;
+- [ ] decidir quando remover os métodos e chaves locais legados do frontend.
 
-- [ ] confirmar origem e necessidade de `GitFacil.exe`;
-- [ ] decidir o destino de `Admin`, `AdminService`, guards e interceptor sem uso;
-- [ ] decidir a padronização entre `portifolio` e `portfolio`;
-- [ ] definir versão mínima de Node.js e registrá-la no projeto.
+### Autenticação
 
-## Prioridade 1 — consolidar o frontend atual
+- [x] cadastro público exclusivo para `CLIENTE`;
+- [x] login para `CLIENTE`, `TATUADOR` e `ADMIN` provisionados;
+- [x] senha com BCrypt;
+- [x] emissão e validação de JWT;
+- [x] restauração da sessão por `/api/auth/me`;
+- [x] respostas `401` e `403` sem expor senha;
+- [ ] implementar recuperação de senha, se entrar no escopo;
+- [ ] decidir estratégia de refresh e revogação de token;
+- [ ] definir política de expiração para ambientes reais.
 
 ### Testes
 
-- [ ] testar `AuthService` e persistência da sessão;
-- [ ] testar `AgendamentoService`, inclusive migração da chave legada;
-- [ ] testar regras de mudança de status;
-- [ ] testar `clienteGuard` e `adminGuard` com redirect;
-- [ ] testar formulários de login, cadastro e contato;
-- [ ] testar filtros de portfólio e flash tattoos;
-- [ ] testar integração local entre agendamento, perfil e dashboard;
-- [ ] definir comportamento esperado para IDs inexistentes.
+- [x] services de autenticação e agendamento no Angular;
+- [x] interceptor e guards Angular;
+- [x] autenticação, segurança, controller, service e repository no backend;
+- [x] teste de repository separando usuários com o mesmo nome por ID;
+- [ ] automatizar o fluxo end-to-end Angular → API → banco;
+- [ ] cobrir a matriz completa de endpoints e perfis;
+- [ ] testar estados de loading, erro e indisponibilidade do backend.
 
-### Coerência funcional
+## Prioridade 2 — evoluir o catálogo sem inventar integração
 
-- [ ] decidir se `/agendamento` exige autenticação;
-- [ ] definir vínculo estável entre usuário e agendamento, sem depender apenas do nome;
-- [ ] alinhar o favorito do detalhe com os favoritos do perfil;
-- [ ] remover, desabilitar ou identificar claramente ações ainda sem implementação;
-- [ ] separar indicadores calculados de valores demonstrativos;
-- [ ] centralizar estilos repetidos de login e cadastro quando houver autorização para refatorar.
+- [ ] concluir regras e services do backend para tatuadores;
+- [ ] corrigir a autorização antes de conectar a interface;
+- [ ] definir DTOs compatíveis com os cards e perfis do Angular;
+- [ ] migrar o catálogo público de `CatalogoService` para API somente depois disso;
+- [ ] implementar portfólio de forma incremental;
+- [ ] decidir o domínio de flash tattoos e sua persistência;
+- [ ] manter fallback, erros e estados vazios claros durante cada migração;
+- [ ] criar testes por recurso integrado.
 
-### Qualidade
-
-- [ ] executar auditoria de acessibilidade com ferramenta apropriada;
-- [ ] testar navegação por teclado e leitores de tela;
-- [ ] validar responsividade em uma matriz de telas e navegadores;
-- [x] corrigir a sincronização do autocomplete com os Reactive Forms;
-- [ ] revisar loading, erro e estados vazios;
-- [ ] adicionar script de lint se a equipe escolher uma ferramenta.
-
-## Prioridade 2 — preparar a integração real
-
-Esta etapa só deve começar depois que o backend e seus contratos forem confirmados.
-
-- [ ] localizar ou definir o repositório oficial da API;
-- [ ] documentar endpoints e exemplos de request/response;
-- [ ] definir DTOs e mapeadores entre domínio e models de tela;
-- [ ] configurar URLs por ambiente;
-- [ ] definir autenticação e armazenamento de token;
-- [ ] implementar interceptor apenas com estratégia confirmada;
-- [ ] padronizar tratamento de erros HTTP;
-- [ ] confirmar CORS;
-- [ ] substituir mocks de forma incremental;
-- [ ] criar testes de integração para cada recurso migrado.
-
-Ordem sugerida, sujeita à confirmação do grupo:
-
-1. autenticação e sessão;
-2. tatuadores e portfólio;
-3. disponibilidade e agendamentos;
-4. administração;
-5. pagamentos;
-6. contato/notificações.
+Até essa etapa ser concluída, tatuadores, portfólio, flash tattoos e avaliações devem continuar documentados como dados de catálogo local.
 
 ## Prioridade 3 — completar funcionalidades visíveis
 
-Somente após requisitos e API:
-
-- [ ] recuperação de senha;
 - [ ] edição de informações pessoais;
 - [ ] favoritos persistentes;
 - [ ] inspirações salvas;
 - [ ] configurações de conta;
-- [ ] seleção de trabalho do portfólio no agendamento;
-- [ ] envio de referência;
+- [ ] upload persistente de referência do agendamento;
 - [ ] agenda e disponibilidade reais;
 - [ ] CRUD administrativo de portfólio;
 - [ ] CRUD administrativo de tatuadores;
 - [ ] CRUD administrativo de flash tattoos;
+- [ ] contato com envio real;
 - [ ] fluxo de pagamento;
 - [ ] área de tatuador, se aprovada.
 
-## Prioridade 4 — documentação de produto e entrega
+## Prioridade 4 — qualidade e entrega
 
-- [ ] requisitos funcionais e não funcionais;
-- [ ] regras de negócio;
-- [ ] casos de uso e critérios de aceite;
-- [ ] contrato OpenAPI;
-- [ ] modelo de dados confirmado pelo backend;
-- [ ] guia de contribuição;
-- [ ] licença do projeto;
-- [ ] estratégia de deploy e ambientes;
-- [ ] CI para build e testes;
-- [ ] política de privacidade, caso dados reais sejam coletados;
-- [ ] guia de demonstração para portfólio e entrevistas.
+- [ ] formalizar requisitos, regras de negócio e critérios de aceite;
+- [ ] criar contrato OpenAPI;
+- [ ] substituir `ddl-auto=update` por migrations versionadas para produção;
+- [ ] definir URLs, CORS e segredos por ambiente;
+- [ ] adicionar pipeline de CI para builds e testes;
+- [ ] executar auditoria de acessibilidade;
+- [ ] validar responsividade em uma matriz de dispositivos e navegadores;
+- [ ] revisar dados institucionais e direitos das imagens;
+- [ ] definir licença e guia de contribuição;
+- [ ] documentar estratégia de deploy e demonstração de portfólio.
 
 ## Próxima sessão recomendada
 
-Investigar e corrigir a sincronização do preenchimento automático do cadastro com o Reactive Form. O problema foi observado quando o navegador exibiu valores preenchidos, mas a validação continuou indicando campos inválidos.
+Corrigir e testar a autorização de escrita em `/api/tatuadores/**` sem implementar ainda o CRUD completo.
+
+Objetivo:
+
+- fazer o Spring Security rejeitar um `CLIENTE` antes de a requisição chegar ao `TatuadorService`;
+- preservar o acesso público somente às leituras confirmadas;
+- registrar com testes quais roles podem executar cada operação.
 
 Arquivos provavelmente envolvidos quando essa tarefa for autorizada:
 
 ```text
-src/app/pages/cadastro-componente/cadastro-componente.ts
-src/app/pages/cadastro-componente/cadastro-componente.html
-src/app/pages/cadastro-componente/cadastro-componente.spec.ts
+burger/src/main/java/com/pi/code_ink/security/SecurityConfig.java
+burger/src/test/java/com/pi/code_ink/security/AuthSecurityIntegrationTest.java
+burger/docs/AUTHENTICATION.md
 ```
 
 Conhecimentos praticados:
 
-- Reactive Forms e estado interno dos controles;
-- eventos do navegador e autocomplete;
-- sincronização entre DOM e estado Angular;
-- testes de regressão;
-- prevenção de mensagens de validação incorretas.
+- autenticação versus autorização;
+- ordem de matchers do Spring Security;
+- princípio do menor privilégio;
+- testes de integração com respostas `401` e `403`.
 
 ## Regra de atualização
 

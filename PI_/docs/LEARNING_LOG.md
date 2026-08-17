@@ -1,5 +1,43 @@
 # Learning Log - Code Ink
 
+## 2026-08-17 - Documentação Full Stack para portfólio
+
+### O que fiz
+
+- Reorganizei a entrada documental do Code Ink para apresentar Angular, Spring Boot e MySQL como partes do mesmo repositório.
+- Registrei o estado real de autenticação JWT, BCrypt, roles, interceptor, guards e autorização no backend.
+- Documentei o fluxo de agendamento que associa `agendamentos.cliente_id` ao usuário autenticado e consulta `/api/agendamentos/meus` por ID.
+- Separei funcionalidades integradas, catálogo local, scaffolding e limitações conhecidas para não apresentar trabalho incompleto como concluído.
+- Preservei as entradas históricas anteriores, mesmo quando seus próximos passos já foram realizados.
+
+### O que aprendi
+
+- Um README de portfólio precisa explicar o problema, a arquitetura, as evidências de funcionamento e os limites do projeto sem exagerar o escopo.
+- Guards no Angular protegem a experiência de navegação, enquanto a autorização verdadeira precisa acontecer no backend.
+- A fronteira de confiança impede que dados controlados pelo navegador, como o nome do cliente, definam ownership.
+- Relacionar o agendamento ao ID do usuário é mais seguro e estável do que pesquisar pelo nome.
+- Documentação histórica e documentação de estado atual cumprem papéis diferentes e não devem ser misturadas.
+
+### Validações registradas
+
+Resultados confirmados para o estado de 17/08/2026:
+
+- frontend: 10 arquivos e 34/34 testes aprovados;
+- frontend: build de produção concluído com sucesso;
+- backend: 25/25 testes, sem falhas, erros ou testes ignorados;
+- backend: `bash mvnw clean package` com `BUILD SUCCESS`;
+- fluxo manual: Angular → JWT → Spring Boot → MySQL → `cliente_id` → `/meus` → Angular.
+
+Esta sessão alterou somente documentação e não reexecutou as suítes já validadas, pois nenhum código, teste, configuração ou dependência foi modificado.
+
+### Pendência principal
+
+A autorização de escrita em `/api/tatuadores/**` ainda precisa ser endurecida. A correção foi mantida fora do escopo documental e deve incluir testes que impeçam um `CLIENTE` de atravessar a camada de autorização.
+
+### Próximo passo
+
+Corrigir e testar a matriz de autorização de `/api/tatuadores/**` antes de implementar o CRUD de tatuadores.
+
 ## 2026-07-30 - Sincronização do autocomplete no cadastro
 
 ### O que fiz
