@@ -29,8 +29,10 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -216,6 +218,39 @@ class AuthSecurityIntegrationTest {
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.status").value(403))
                 .andExpect(jsonPath("$.message").value("Acesso negado."));
+    }
+
+    @Test
+    void devePermitirListagemPublicaDeTatuadores() throws Exception {
+        mockMvc.perform(get("/api/tatuadores"))
+                .andExpect(result -> {
+                    int responseStatus = result.getResponse().getStatus();
+                    assertFalse(responseStatus == 401 || responseStatus == 403,
+                            "GET /api/tatuadores deve permanecer público.");
+                });
+    }
+
+    @Test
+    void deveRetornar403QuandoClienteTentarAlterarTatuadores() throws Exception {
+        criarUsuario(Role.CLIENTE, "cliente@exemplo.com", "SenhaSegura123");
+        String token = fazerLogin("cliente@exemplo.com", "SenhaSegura123");
+        String authorization = "Bearer " + token;
+
+        mockMvc.perform(post("/api/tatuadores")
+                        .header("Authorization", authorization)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}"))
+                .andExpect(status().isForbidden());
+
+        mockMvc.perform(put("/api/tatuadores/1")
+                        .header("Authorization", authorization)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}"))
+                .andExpect(status().isForbidden());
+
+        mockMvc.perform(delete("/api/tatuadores/1")
+                        .header("Authorization", authorization))
+                .andExpect(status().isForbidden());
     }
 
     private void criarUsuario(Role role, String email, String senha) {
